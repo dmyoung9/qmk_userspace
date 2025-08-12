@@ -1,3 +1,8 @@
 {
+    "macros": [
+        [
+            {"action":"tap", "keycodes": ["LALT", "SPC"]}
+        ]
+    ],
     "modules": ["dmyoung9/oled_utils"]
 }
