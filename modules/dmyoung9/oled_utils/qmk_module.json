@@ -1,5 +1,5 @@
 {
-    "module_name": "OLED Utils",
+    "module_name": "oled_utils",
     "maintainer": "dmyoung9",
     "features": {
         "oled": true
