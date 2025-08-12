@@ -36,8 +36,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 	[_RAISE] = LAYOUT(
 	  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-	  _______, KC_MB2 , KC_MUP , KC_MB1 , _______, _______,                   KC_HOME, KC_PGDN, KC_PGUP, KC_END , _______, _______, 
-	  _______, KC_MLFT, KC_MDWN, KC_MRGT, _______, _______,                   KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______, 
+	  _______, KC_MB2 , KC_MUP , KC_MB1 , _______, _______,                   KC_HOME, KC_PGDN, KC_PGUP, KC_END , _______, _______,
+	  _______, KC_MLFT, KC_MDWN, KC_MRGT, _______, _______,                   KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
 	  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
 								 _______, _______, _______, _______, _______, _______, _______, _______
 	),
@@ -53,10 +53,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #ifdef ENCODER_MAP_ENABLE
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [0] = { ENCODER_CCW_CW(XXXXXXX, XXXXXXX), ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
-    [1] = { ENCODER_CCW_CW(XXXXXXX, XXXXXXX), ENCODER_CCW_CW(_______, _______) },
-    [2] = { ENCODER_CCW_CW(XXXXXXX, XXXXXXX), ENCODER_CCW_CW(_______, _______) },
-    [3] = { ENCODER_CCW_CW(XXXXXXX, XXXXXXX), ENCODER_CCW_CW(_______, _______) },
+    [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+    [1] = { ENCODER_CCW_CW(KC_PGUP, KC_PGDN) },
+    [2] = { ENCODER_CCW_CW(_______, _______) },
+    [3] = { ENCODER_CCW_CW(_______, _______) },
 };
 #endif
 
@@ -71,7 +71,7 @@ bool oled_task_user(void) {
 	  render_layers();
 	  render_wpm();
   }
-  
+
   return false;
 }
 
