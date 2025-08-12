@@ -1,6 +1,8 @@
 {
     "userspace_version": "1.1",
     "build_targets": [
-        ["boardsource/lulu/avr", "drinf58"]
+        ["boardsource/lulu/avr", "drinf58"],
+        ["boardsource/lulu/avr", "kbdd"]
     ]
 }
+
