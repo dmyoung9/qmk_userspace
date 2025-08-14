@@ -16,11 +16,3 @@
 #define ENCODER_B_PINS_RIGHT { F4 }
 #define ENCODER_RESOLUTIONS_RIGHT { 4 }
 #endif
-
-// Enable all typing_stats optional features
-#define TS_ENABLE_WPM_TRACKING 1
-#define TS_ENABLE_EEPROM_STORAGE 1
-#define TS_ENABLE_BIGRAM_STATS 1
-#define TS_ENABLE_LAYER_TIME 1
-#define TS_ENABLE_ADVANCED_ANALYSIS 1
-#define TS_AUTO_NEW_SESSION_ON_BOOT 1
