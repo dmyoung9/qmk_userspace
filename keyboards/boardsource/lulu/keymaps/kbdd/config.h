@@ -15,3 +15,16 @@
 #endif
 
 #define SPLIT_LAYER_STATE_ENABLE
+
+// Faster animation frame rate to reduce chance of getting stuck during rapid layer changes
+// Default is 80ms, reducing to 50ms makes transitions more responsive
+#define ANIM_FRAME_MS 50
+
+// Widget watchdog configuration
+// Timeout before considering an animation stuck (default: 1000ms)
+#define WIDGET_WATCHDOG_TIMEOUT_MS 1000
+// Grace period before forcing reset (default: 500ms)
+#define WIDGET_WATCHDOG_GRACE_MS 500
+
+// Enable debugging for animation issues (optional - can be commented out for production)
+// #define OLED_ANIM_DEBUG

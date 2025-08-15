@@ -71,3 +71,10 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 void keyboard_post_init_user(void) {
     widget_init(&layer_widget, &layer_widget_config, 0, timer_read32());
 }
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    // Force immediate widget update on layer changes to prevent animation getting stuck
+    // This ensures the widget sees layer changes immediately rather than waiting for OLED refresh
+    widget_tick(&layer_widget, timer_read32());
+    return state;
+}
