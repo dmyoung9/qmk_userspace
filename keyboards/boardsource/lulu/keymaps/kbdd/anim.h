@@ -8,3 +8,6 @@
 
 extern widget_t layer_widget;
 extern const widget_config_t layer_widget_config;
+
+void draw_wpm_frame(void);
+void draw_logo(void);

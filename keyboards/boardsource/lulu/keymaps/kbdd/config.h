@@ -28,3 +28,14 @@
 
 // Enable debugging for animation issues (optional - can be commented out for production)
 // #define OLED_ANIM_DEBUG
+
+// WPM Bar Graph Configuration for 128x32 SSD1306
+#define WPM_BAR_X 1
+#define WPM_BAR_Y 9
+#define WPM_BAR_WIDTH 78
+#define WPM_BAR_HEIGHT 18
+
+#define SPLIT_WPM_ENABLE
+
+#define SPLIT_TRANSACTION_IDS_USER WPM_STATS_SYNC
+

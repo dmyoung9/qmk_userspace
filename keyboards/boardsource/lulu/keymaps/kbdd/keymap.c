@@ -1,6 +1,8 @@
 #include QMK_KEYBOARD_H
 #include "constants.h"
 #include "anim.h"
+#include "wpm_stats.h"
+#include "oled_utils.h"
 
 // left-hand GACS
 #define MOD_HLG MT(MOD_LGUI, KC_A)
@@ -60,6 +62,14 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #ifdef OLED_ENABLE
 bool oled_task_user(void) {
     widget_tick(&layer_widget, timer_read32());
+
+    if (!is_keyboard_master()) {
+        draw_wpm_frame();
+        wpm_stats_oled_render();
+    } else {
+        draw_logo();
+    }
+
     return false;
 }
 
@@ -69,6 +79,11 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 #endif
 
 void keyboard_post_init_user(void) {
+    wpm_stats_init();
+    wpm_stats_init_split_sync();
+    wpm_stats_oled_init();
+    oled_clear();
+
     widget_init(&layer_widget, &layer_widget_config, 0, timer_read32());
 }
 
@@ -78,3 +93,20 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     widget_tick(&layer_widget, timer_read32());
     return state;
 }
+
+void matrix_scan_user(void) {
+    // Handle WPM statistics periodic tasks (only on master)
+    if (is_keyboard_master()) {
+        wpm_stats_task();
+    }
+}
+
+void housekeeping_task_user(void) {
+    wpm_stats_housekeeping_task();
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    wpm_stats_on_keyevent(record);
+    return true;
+}
+

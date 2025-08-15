@@ -5,7 +5,9 @@
 #include "oled_declarative.h"
 
 
+#define SLICE22x16(p) ((const slice_t){(const uint8_t PROGMEM *)(p), 22, 2})
 #define SLICE32x16(p) ((const slice_t){(const uint8_t PROGMEM *)(p), 32, 2})
+#define SLICE128x32(p) ((const slice_t){(const uint8_t PROGMEM *)(p), 128, 4})
 
 DEFINE_SLICE_SEQ(layer_0,
     SLICE32x16(layer_0_0),
@@ -56,3 +58,14 @@ const widget_config_t layer_widget_config = {
 
 // Runtime instance
 widget_t layer_widget;
+
+static const slice_t SLICE_wpm_frame = SLICE128x32(wpm_frame);
+static const slice_t SLICE_logo = SLICE22x16(logo);
+
+void draw_wpm_frame(void) {
+    draw_slice_px(&SLICE_wpm_frame, 0, 0);
+}
+
+void draw_logo(void) {
+    draw_slice_px(&SLICE_logo, 106, 16);
+}
