@@ -1,3 +1,4 @@
+SRC += anim.c progmem_anim.c
 CONVERT_TO=blok
 VIA_ENABLE = yes
 ENCODER_MAP_ENABLE = yes
