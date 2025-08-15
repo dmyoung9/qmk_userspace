@@ -5,7 +5,6 @@ WPM_ENABLE = yes
 OLED_ENABLE = yes
 LTO_ENABLE = yes
 
-# Add WPM bar graph source files
-SRC += wpm_bar_graph.c wpm.c
+# WPM bar graph functionality is now integrated into the wpm_stats module
 
 CONSOLE_ENABLE = no

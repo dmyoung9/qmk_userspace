@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "wpm.h"
 #include "wpm_stats.h"
 #include "oled_driver.h"
-#include "transactions.h"
 
 enum layers {
     _QWERTY,
@@ -122,51 +120,31 @@ void matrix_scan_user(void) {
     }
 }
 
-wpm_stats_t g_slave_wpm_data = {0, 0, 0};
-
-// Slave-side handler for WPM data sync
-void wpm_stats_sync_slave_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
-    const wpm_stats_t *master_data = (const wpm_stats_t*)in_data;
-    g_slave_wpm_data = *master_data;
-}
-
 void keyboard_post_init_user(void) {
     // Initialize WPM statistics module
     wpm_stats_init();
 
-    // Initialize WPM graph
-    wpm_graph_init();
+    // Initialize split keyboard sync
+    wpm_stats_init_split_sync();
+
+    // Initialize OLED rendering
+    wpm_stats_oled_init();
 
     // Clear the display initially
     oled_clear();
-
-    // Register the slave-side handler for WPM sync
-    transaction_register_rpc(WPM_STATS_SYNC, wpm_stats_sync_slave_handler);
 }
 
 
 void housekeeping_task_user(void) {
-    if (is_keyboard_master()) {
-        // Interact with slave every 500ms
-        static uint32_t last_sync = 0;
-        if (timer_elapsed32(last_sync) > 500) {
-            wpm_stats_t m2s;
-            wpm_stats_get(&m2s);
-            if (transaction_rpc_send(WPM_STATS_SYNC, sizeof(m2s), &m2s)) {
-                last_sync = timer_read32();
-                dprintf("Slave value: %d\n", s2m.s2m_data); // this will now be 11, as the slave adds 5
-            } else {
-                dprint("Slave sync failed!\n");
-            }
-        }
-    }
+    // Handle split keyboard sync
+    wpm_stats_housekeeping_task();
 }
 
 #ifdef OLED_ENABLE
 
 bool oled_task_user(void) {
   // Render WPM graph on both sides
-  render_wpm_graph();
+  wpm_stats_oled_render();
 
   return false;
 }
