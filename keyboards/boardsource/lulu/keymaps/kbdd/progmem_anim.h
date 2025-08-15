@@ -2,10 +2,10 @@
 
 #include QMK_KEYBOARD_H
 
-extern const uint8_t PROGMEM layer_0_0[], layer_0_1[], layer_0_2[], layer_0_3[];  // 32x16
-extern const uint8_t PROGMEM layer_1_0[], layer_1_1[], layer_1_2[], layer_1_3[];  // 32x16
-extern const uint8_t PROGMEM layer_2_0[], layer_2_1[], layer_2_2[], layer_2_3[];  // 32x16
-extern const uint8_t PROGMEM layer_3_0[], layer_3_1[], layer_3_2[], layer_3_3[];  // 32x16
+extern const uint8_t PROGMEM layer_0_0[], layer_0_1[], layer_0_2[], layer_0_3[], layer_0_4[], layer_0_5[];  // 72x14
+extern const uint8_t PROGMEM layer_1_0[], layer_1_1[], layer_1_2[], layer_1_3[], layer_1_4[], layer_1_5[];  // 72x14
+extern const uint8_t PROGMEM layer_2_0[], layer_2_1[], layer_2_2[], layer_2_3[], layer_2_4[], layer_2_5[], layer_2_6[], layer_2_7[], layer_2_8[], layer_2_9[];  // 72x14
+extern const uint8_t PROGMEM layer_3_0[], layer_3_1[], layer_3_2[], layer_3_3[], layer_3_4[], layer_3_5[], layer_3_6[], layer_3_7[];  // 72x14
 
 extern const uint8_t PROGMEM wpm_frame[];  // 128x32
 extern const uint8_t PROGMEM logo[];  // 22x16

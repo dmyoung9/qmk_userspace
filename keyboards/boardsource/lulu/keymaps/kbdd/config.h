@@ -18,7 +18,7 @@
 
 // Faster animation frame rate to reduce chance of getting stuck during rapid layer changes
 // Default is 80ms, reducing to 50ms makes transitions more responsive
-#define ANIM_FRAME_MS 50
+#define ANIM_FRAME_MS 80
 
 // Widget watchdog configuration
 // Timeout before considering an animation stuck (default: 1000ms)
