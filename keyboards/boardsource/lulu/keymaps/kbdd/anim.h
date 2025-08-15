@@ -9,5 +9,7 @@
 extern widget_t layer_widget;
 extern const widget_config_t layer_widget_config;
 
+void init_widgets(void);
 void draw_wpm_frame(void);
 void draw_logo(void);
+void tick_widgets(void);

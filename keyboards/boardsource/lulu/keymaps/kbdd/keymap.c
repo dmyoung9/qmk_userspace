@@ -61,7 +61,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 
 #ifdef OLED_ENABLE
 bool oled_task_user(void) {
-    widget_tick(&layer_widget, timer_read32());
+    tick_widgets();
 
     if (!is_keyboard_master()) {
         draw_wpm_frame();
@@ -84,13 +84,13 @@ void keyboard_post_init_user(void) {
     wpm_stats_oled_init();
     oled_clear();
 
-    widget_init(&layer_widget, &layer_widget_config, 0, timer_read32());
+    init_widgets();
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     // Force immediate widget update on layer changes to prevent animation getting stuck
     // This ensures the widget sees layer changes immediately rather than waiting for OLED refresh
-    widget_tick(&layer_widget, timer_read32());
+    tick_widgets();
     return state;
 }
 
