@@ -61,13 +61,12 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 
 #ifdef OLED_ENABLE
 bool oled_task_user(void) {
-    tick_widgets();
-
     if (!is_keyboard_master()) {
         draw_wpm_frame();
         wpm_stats_oled_render();
     } else {
         draw_logo();
+        tick_widgets();
     }
 
     return false;
