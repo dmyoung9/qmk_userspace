@@ -536,6 +536,25 @@ DEFINE_SLICE_SEQ(mods_frame_seq,
     SLICE_CUSTOM_PX(mods_frame_4, 106, 16)
 );
 
+// WPM boot animation sequences (slave screen only)
+DEFINE_SLICE_SEQ(wpm_frame_seq,
+    SLICE_CUSTOM_PX(wpm_frame_0, 128, 32),
+    SLICE_CUSTOM_PX(wpm_frame_1, 128, 32),
+    SLICE_CUSTOM_PX(wpm_frame_2, 128, 32),
+    SLICE_CUSTOM_PX(wpm_frame_3, 128, 32),
+    SLICE_CUSTOM_PX(wpm_frame_4, 128, 32),
+    SLICE_CUSTOM_PX(wpm_frame_5, 128, 32),
+    SLICE_CUSTOM_PX(wpm_frame_6, 128, 32),
+    SLICE_CUSTOM_PX(wpm_frame_7, 128, 32),
+    SLICE_CUSTOM_PX(wpm_frame_8, 128, 32)
+);
+
+DEFINE_SLICE_SEQ(wpm_seq,
+    SLICE_CUSTOM_PX(wpm_0, 32, 16),
+    SLICE_CUSTOM_PX(wpm_1, 32, 16),
+    SLICE_CUSTOM_PX(wpm_2, 32, 16)
+);
+
 // Layer frame animation controller (using boot-then-reverse-out-back pattern)
 bootrev_anim_t layer_frame_anim;
 static uint8_t last_layer = 0;
@@ -543,6 +562,10 @@ static uint8_t last_layer = 0;
 // Boot animation controllers (oneshot - run once and stay at last frame)
 oneshot_anim_t caps_frame_anim;
 oneshot_anim_t mods_frame_anim;
+
+// WPM boot animation controllers (slave screen only)
+oneshot_anim_t wpm_frame_anim;
+oneshot_anim_t wpm_anim;
 
 // Modifier animation controllers
 // TODO: Temporarily disabled to restore keyboard functionality
@@ -558,7 +581,6 @@ toggle_anim_t shift_anim;
 toggle_anim_t ctrl_anim;
 */
 
-static const slice_t SLICE_wpm_frame = SLICE128x32(wpm_frame);
 static const slice_t SLICE_logo = SLICE22x16(logo);
 
 void init_widgets(void) {
@@ -709,7 +731,20 @@ void tick_widgets(void) {
 }
 
 void draw_wpm_frame(void) {
-    draw_slice_px(&SLICE_wpm_frame, 0, 0);
+    uint32_t now = timer_read32();
+
+    // Initialize WPM animations on first call (slave screen only)
+    static bool wpm_initialized = false;
+    if (!wpm_initialized) {
+        // Initialize WPM boot animations (oneshot - run once and stay at last frame)
+        oneshot_anim_init(&wpm_frame_anim, &wpm_frame_seq, 0, 0, /*steady_at_end=*/true, /*run_boot=*/true, now);
+        oneshot_anim_init(&wpm_anim, &wpm_seq, 83, 8, /*steady_at_end=*/true, /*run_boot=*/true, now);
+        wpm_initialized = true;
+    }
+
+    // Render WPM animations with OR blending (background first, then foreground)
+    oneshot_anim_render_blend(&wpm_frame_anim, now, false);  // wpm_frame at (0, 0) - opaque
+    oneshot_anim_render_blend(&wpm_anim, now, true);         // wpm at (83, 8) - OR blend
 }
 
 void draw_logo(void) {
