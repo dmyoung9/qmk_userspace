@@ -19,3 +19,6 @@ extern const uint8_t PROGMEM super_0[], super_1[], super_2[], super_3[];  // 25x
 extern const uint8_t PROGMEM alt_0[], alt_1[], alt_2[], alt_3[];  // 17x9
 extern const uint8_t PROGMEM shift_0[], shift_1[], shift_2[], shift_3[];  // 23x9
 extern const uint8_t PROGMEM ctrl_0[], ctrl_1[], ctrl_2[], ctrl_3[];  // 21x9
+
+extern const uint8_t PROGMEM wpm_frame_0[], wpm_frame_1[], wpm_frame_2[], wpm_frame_3[], wpm_frame_4[], wpm_frame_5[], wpm_frame_6[], wpm_frame_7[], wpm_frame_8[];
+extern const uint8_t PROGMEM wpm_0[], wpm_1[], wpm_2[];
