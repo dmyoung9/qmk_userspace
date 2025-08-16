@@ -520,9 +520,29 @@ DEFINE_SLICE_SEQ(layer_frame,
     SLICE86x16(layer_frame_4)
 );
 
+// Boot animation sequences (run once at boot, stay at last frame)
+DEFINE_SLICE_SEQ(caps_frame_seq,
+    SLICE_CUSTOM_PX(caps_frame_0, 41, 16),
+    SLICE_CUSTOM_PX(caps_frame_1, 41, 16),
+    SLICE_CUSTOM_PX(caps_frame_2, 41, 16),
+    SLICE_CUSTOM_PX(caps_frame_3, 41, 16)
+);
+
+DEFINE_SLICE_SEQ(mods_frame_seq,
+    SLICE_CUSTOM_PX(mods_frame_0, 106, 16),
+    SLICE_CUSTOM_PX(mods_frame_1, 106, 16),
+    SLICE_CUSTOM_PX(mods_frame_2, 106, 16),
+    SLICE_CUSTOM_PX(mods_frame_3, 106, 16),
+    SLICE_CUSTOM_PX(mods_frame_4, 106, 16)
+);
+
 // Layer frame animation controller (using boot-then-reverse-out-back pattern)
 bootrev_anim_t layer_frame_anim;
 static uint8_t last_layer = 0;
+
+// Boot animation controllers (oneshot - run once and stay at last frame)
+oneshot_anim_t caps_frame_anim;
+oneshot_anim_t mods_frame_anim;
 
 // Modifier animation controllers
 // TODO: Temporarily disabled to restore keyboard functionality
@@ -559,6 +579,10 @@ void init_widgets(void) {
     // Initialize layer frame animation with boot animation
     // Boot: 0→4, stay at 4. Layer changes: 4→0→4
     bootrev_anim_init(&layer_frame_anim, &layer_frame, 42, 0, /*run_boot_anim=*/true, now);
+
+    // Initialize boot animations (oneshot - run once and stay at last frame)
+    oneshot_anim_init(&caps_frame_anim, &caps_frame_seq, 0, 0, /*steady_at_end=*/true, /*run_boot=*/true, now);
+    oneshot_anim_init(&mods_frame_anim, &mods_frame_seq, 0, 16, /*steady_at_end=*/true, /*run_boot=*/true, now);
 
     // Initialize modifier animations
     // TODO: Temporarily disabled to restore keyboard functionality
@@ -643,7 +667,11 @@ void tick_widgets(void) {
     }
 
 
-    // Render the layer frame animation FIRST (background) - opaque
+    // Render boot animations FIRST (background elements)
+    oneshot_anim_render(&caps_frame_anim, now);   // caps_frame at (0, 0)
+    oneshot_anim_render(&mods_frame_anim, now);   // mods_frame at (0, 16)
+
+    // Render the layer frame animation SECOND (background) - opaque
     bootrev_anim_render(&layer_frame_anim, now);
 
     // Render all layer animations SECOND (foreground) - OR blend to not overwrite frame
