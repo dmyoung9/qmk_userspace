@@ -3,10 +3,8 @@
 #include "progmem_starfleet.h"
 #include "oled_utils.h"
 
-#define SLICE16x8(p) ((const slice_t){(const uint8_t PROGMEM *)(p), 16, 1})
-#define SLICE8x32(p) ((const slice_t){(const uint8_t PROGMEM *)(p), 8, 4})
-#define SLICE24x32(p) ((const slice_t){(const uint8_t PROGMEM *)(p), 24, 4})
-#define SLICE128x32(p) ((const slice_t){(const uint8_t PROGMEM *)(p), 128, 4})
+// These SLICE macros are now provided by oled_slice.h
+// Removed to avoid redefinition conflicts
 
 static const slice_t SLICE_kbd = SLICE128x32(kbd);
 

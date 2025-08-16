@@ -9,10 +9,10 @@
 
 
 
+// Custom slice macros not provided by oled_slice.h
 #define SLICE72x12(p) SLICE_CUSTOM_PX(p, 72, 12)
 #define SLICE22x16(p) SLICE_CUSTOM_PX(p, 22, 16)
-#define SLICE32x16(p) SLICE_CUSTOM_PX(p, 32, 16)
-#define SLICE128x32(p) ((const slice_t){(const uint8_t PROGMEM *)(p), 128, 4, 0})
+// SLICE32x16 and SLICE128x32 are now provided by oled_slice.h
 #define SLICE106x16(p) SLICE_CUSTOM_PX(p, 106, 16)
 #define SLICE86x16(p) SLICE_CUSTOM_PX(p, 86, 16)
 #define SLICE41x16(p) SLICE_CUSTOM_PX(p, 41, 16)
