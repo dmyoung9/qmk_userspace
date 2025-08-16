@@ -1,3 +1,6 @@
+#define ENABLE_RGB_MATRIX_TYPING_HEATMAP
+#define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_TYPING_HEATMAP
+
 #ifdef ENCODER_ENABLE
 #undef ENCODER_A_PINS
 #undef ENCODER_B_PINS
@@ -30,10 +33,10 @@
 // #define OLED_ANIM_DEBUG
 
 // WPM Bar Graph Configuration for 128x32 SSD1306
-#define WPM_BAR_X 1
-#define WPM_BAR_Y 9
+#define WPM_BAR_X 0
+#define WPM_BAR_Y 13
 #define WPM_BAR_WIDTH 78
-#define WPM_BAR_HEIGHT 18
+#define WPM_BAR_HEIGHT 11
 
 #define SPLIT_WPM_ENABLE
 
