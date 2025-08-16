@@ -120,13 +120,13 @@ DEFINE_SLICE_SEQ(ctrl_seq,
 // Layer animations (toggle pattern - can animate in both directions)
 // 0th frame = inactive/initial, last frame = active/idle
 static const unified_anim_config_t layer_0_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_0, 56, 0, BLEND_OPAQUE);
+    UNIFIED_TOGGLE_CONFIG(&layer_0, 56, 0, BLEND_ADDITIVE);
 static const unified_anim_config_t layer_1_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_1, 56, 0, BLEND_OPAQUE);
+    UNIFIED_TOGGLE_CONFIG(&layer_1, 56, 0, BLEND_ADDITIVE);
 static const unified_anim_config_t layer_2_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_2, 56, 0, BLEND_OPAQUE);
+    UNIFIED_TOGGLE_CONFIG(&layer_2, 56, 0, BLEND_ADDITIVE);
 static const unified_anim_config_t layer_3_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_3, 56, 0, BLEND_OPAQUE);
+    UNIFIED_TOGGLE_CONFIG(&layer_3, 56, 0, BLEND_ADDITIVE);
 
 // Layer frame animation (bootrev pattern - boot then reverse-out-back on trigger)
 static const unified_anim_config_t layer_frame_config =
