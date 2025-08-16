@@ -71,7 +71,10 @@ DEFINE_SLICE_SEQ(caps_seq,
     SLICE21x9(caps_2),
     SLICE21x9(caps_3)
 );
+*/
 
+// TODO: Other modifiers temporarily disabled for testing
+/*
 DEFINE_SLICE_SEQ(super_seq,
     SLICE25x9(super_0),
     SLICE25x9(super_1),
@@ -138,12 +141,310 @@ static uint8_t exiting_layer = 0;
 static uint8_t entering_layer = 0;
 
 // Modifier state detection functions
-// TODO: Temporarily disabled to restore keyboard functionality
-/*
 static bool is_caps_active(void) {
     return host_keyboard_led_state().caps_lock || is_caps_word_on();
 }
 
+static bool is_super_active(void) {
+    uint8_t mods = get_mods() | get_oneshot_mods();
+    return (mods & MOD_MASK_GUI) != 0;
+}
+
+static bool is_alt_active(void) {
+    uint8_t mods = get_mods() | get_oneshot_mods();
+    return (mods & MOD_MASK_ALT) != 0;
+}
+
+static bool is_shift_active(void) {
+    uint8_t mods = get_mods() | get_oneshot_mods();
+    return (mods & MOD_MASK_SHIFT) != 0;
+}
+
+static bool is_ctrl_active(void) {
+    uint8_t mods = get_mods() | get_oneshot_mods();
+    return (mods & MOD_MASK_CTRL) != 0;
+}
+
+// Custom lightweight caps animation system
+typedef enum {
+    CAPS_IDLE_OFF = 0,    // Showing frame 0, caps is off
+    CAPS_IDLE_ON,         // Showing frame 3, caps is on
+    CAPS_ANIMATING_ON,    // Animating 0→1→2→3 (turning on)
+    CAPS_ANIMATING_OFF    // Animating 3→2→1→0 (turning off)
+} caps_anim_state_t;
+
+static struct {
+    caps_anim_state_t state;
+    uint8_t frame_index;
+    uint32_t last_update;
+    bool target_on;
+} caps_anim = {CAPS_IDLE_OFF, 0, 0, false};
+
+static void caps_anim_update_and_draw(uint32_t now) {
+    // Create static slices for all caps frames
+    static const slice_t caps_frames[4] = {
+        SLICE21x9(caps_0),  // Frame 0 - inactive
+        SLICE21x9(caps_1),  // Frame 1 - transition
+        SLICE21x9(caps_2),  // Frame 2 - transition
+        SLICE21x9(caps_3)   // Frame 3 - active
+    };
+
+    bool current_caps_state = is_caps_active();
+
+    // Check for state changes
+    if (current_caps_state != caps_anim.target_on) {
+        caps_anim.target_on = current_caps_state;
+
+        if (current_caps_state) {
+            // Start turning on animation (0→3)
+            caps_anim.state = CAPS_ANIMATING_ON;
+            caps_anim.frame_index = 0;
+        } else {
+            // Start turning off animation (3→0)
+            caps_anim.state = CAPS_ANIMATING_OFF;
+            caps_anim.frame_index = 3;
+        }
+        caps_anim.last_update = now;
+    }
+
+    // Handle animation timing
+    if ((caps_anim.state == CAPS_ANIMATING_ON || caps_anim.state == CAPS_ANIMATING_OFF) &&
+        (now - caps_anim.last_update) >= ANIM_FRAME_MS) {
+
+        if (caps_anim.state == CAPS_ANIMATING_ON) {
+            caps_anim.frame_index++;
+            if (caps_anim.frame_index >= 4) {
+                caps_anim.frame_index = 3;
+                caps_anim.state = CAPS_IDLE_ON;
+            }
+        } else { // CAPS_ANIMATING_OFF
+            caps_anim.frame_index--;
+            if (caps_anim.frame_index == 255) { // Underflow check
+                caps_anim.frame_index = 0;
+                caps_anim.state = CAPS_IDLE_OFF;
+            }
+        }
+        caps_anim.last_update = now;
+    }
+
+    // Draw current frame
+    draw_slice_px(&caps_frames[caps_anim.frame_index], 10, 2);
+}
+
+// Super animation system (25x9 pixels at position 9, 22)
+typedef enum {
+    SUPER_IDLE_OFF = 0, SUPER_IDLE_ON, SUPER_ANIMATING_ON, SUPER_ANIMATING_OFF
+} super_anim_state_t;
+
+static struct {
+    super_anim_state_t state;
+    uint8_t frame_index;
+    uint32_t last_update;
+    bool target_on;
+} super_anim = {SUPER_IDLE_OFF, 0, 0, false};
+
+static void super_anim_update_and_draw(uint32_t now) {
+    static const slice_t super_frames[4] = {
+        SLICE25x9(super_0), SLICE25x9(super_1), SLICE25x9(super_2), SLICE25x9(super_3)
+    };
+
+    bool current_state = is_super_active();
+
+    if (current_state != super_anim.target_on) {
+        super_anim.target_on = current_state;
+        if (current_state) {
+            super_anim.state = SUPER_ANIMATING_ON;
+            super_anim.frame_index = 0;
+        } else {
+            super_anim.state = SUPER_ANIMATING_OFF;
+            super_anim.frame_index = 3;
+        }
+        super_anim.last_update = now;
+    }
+
+    if ((super_anim.state == SUPER_ANIMATING_ON || super_anim.state == SUPER_ANIMATING_OFF) &&
+        (now - super_anim.last_update) >= ANIM_FRAME_MS) {
+
+        if (super_anim.state == SUPER_ANIMATING_ON) {
+            super_anim.frame_index++;
+            if (super_anim.frame_index >= 4) {
+                super_anim.frame_index = 3;
+                super_anim.state = SUPER_IDLE_ON;
+            }
+        } else {
+            super_anim.frame_index--;
+            if (super_anim.frame_index == 255) {
+                super_anim.frame_index = 0;
+                super_anim.state = SUPER_IDLE_OFF;
+            }
+        }
+        super_anim.last_update = now;
+    }
+
+    draw_slice_px(&super_frames[super_anim.frame_index], 9, 22);
+}
+
+// Alt animation system (17x9 pixels at position 35, 22)
+typedef enum {
+    ALT_IDLE_OFF = 0, ALT_IDLE_ON, ALT_ANIMATING_ON, ALT_ANIMATING_OFF
+} alt_anim_state_t;
+
+static struct {
+    alt_anim_state_t state;
+    uint8_t frame_index;
+    uint32_t last_update;
+    bool target_on;
+} alt_anim = {ALT_IDLE_OFF, 0, 0, false};
+
+static void alt_anim_update_and_draw(uint32_t now) {
+    static const slice_t alt_frames[4] = {
+        SLICE17x9(alt_0), SLICE17x9(alt_1), SLICE17x9(alt_2), SLICE17x9(alt_3)
+    };
+
+    bool current_state = is_alt_active();
+
+    if (current_state != alt_anim.target_on) {
+        alt_anim.target_on = current_state;
+        if (current_state) {
+            alt_anim.state = ALT_ANIMATING_ON;
+            alt_anim.frame_index = 0;
+        } else {
+            alt_anim.state = ALT_ANIMATING_OFF;
+            alt_anim.frame_index = 3;
+        }
+        alt_anim.last_update = now;
+    }
+
+    if ((alt_anim.state == ALT_ANIMATING_ON || alt_anim.state == ALT_ANIMATING_OFF) &&
+        (now - alt_anim.last_update) >= ANIM_FRAME_MS) {
+
+        if (alt_anim.state == ALT_ANIMATING_ON) {
+            alt_anim.frame_index++;
+            if (alt_anim.frame_index >= 4) {
+                alt_anim.frame_index = 3;
+                alt_anim.state = ALT_IDLE_ON;
+            }
+        } else {
+            alt_anim.frame_index--;
+            if (alt_anim.frame_index == 255) {
+                alt_anim.frame_index = 0;
+                alt_anim.state = ALT_IDLE_OFF;
+            }
+        }
+        alt_anim.last_update = now;
+    }
+
+    draw_slice_px(&alt_frames[alt_anim.frame_index], 35, 22);
+}
+
+// Shift animation system (23x9 pixels at position 53, 22)
+typedef enum {
+    SHIFT_IDLE_OFF = 0, SHIFT_IDLE_ON, SHIFT_ANIMATING_ON, SHIFT_ANIMATING_OFF
+} shift_anim_state_t;
+
+static struct {
+    shift_anim_state_t state;
+    uint8_t frame_index;
+    uint32_t last_update;
+    bool target_on;
+} shift_anim = {SHIFT_IDLE_OFF, 0, 0, false};
+
+static void shift_anim_update_and_draw(uint32_t now) {
+    static const slice_t shift_frames[4] = {
+        SLICE23x9(shift_0), SLICE23x9(shift_1), SLICE23x9(shift_2), SLICE23x9(shift_3)
+    };
+
+    bool current_state = is_shift_active();
+
+    if (current_state != shift_anim.target_on) {
+        shift_anim.target_on = current_state;
+        if (current_state) {
+            shift_anim.state = SHIFT_ANIMATING_ON;
+            shift_anim.frame_index = 0;
+        } else {
+            shift_anim.state = SHIFT_ANIMATING_OFF;
+            shift_anim.frame_index = 3;
+        }
+        shift_anim.last_update = now;
+    }
+
+    if ((shift_anim.state == SHIFT_ANIMATING_ON || shift_anim.state == SHIFT_ANIMATING_OFF) &&
+        (now - shift_anim.last_update) >= ANIM_FRAME_MS) {
+
+        if (shift_anim.state == SHIFT_ANIMATING_ON) {
+            shift_anim.frame_index++;
+            if (shift_anim.frame_index >= 4) {
+                shift_anim.frame_index = 3;
+                shift_anim.state = SHIFT_IDLE_ON;
+            }
+        } else {
+            shift_anim.frame_index--;
+            if (shift_anim.frame_index == 255) {
+                shift_anim.frame_index = 0;
+                shift_anim.state = SHIFT_IDLE_OFF;
+            }
+        }
+        shift_anim.last_update = now;
+    }
+
+    draw_slice_px(&shift_frames[shift_anim.frame_index], 53, 22);
+}
+
+// Ctrl animation system (21x9 pixels at position 77, 22)
+typedef enum {
+    CTRL_IDLE_OFF = 0, CTRL_IDLE_ON, CTRL_ANIMATING_ON, CTRL_ANIMATING_OFF
+} ctrl_anim_state_t;
+
+static struct {
+    ctrl_anim_state_t state;
+    uint8_t frame_index;
+    uint32_t last_update;
+    bool target_on;
+} ctrl_anim = {CTRL_IDLE_OFF, 0, 0, false};
+
+static void ctrl_anim_update_and_draw(uint32_t now) {
+    static const slice_t ctrl_frames[4] = {
+        SLICE21x9(ctrl_0), SLICE21x9(ctrl_1), SLICE21x9(ctrl_2), SLICE21x9(ctrl_3)
+    };
+
+    bool current_state = is_ctrl_active();
+
+    if (current_state != ctrl_anim.target_on) {
+        ctrl_anim.target_on = current_state;
+        if (current_state) {
+            ctrl_anim.state = CTRL_ANIMATING_ON;
+            ctrl_anim.frame_index = 0;
+        } else {
+            ctrl_anim.state = CTRL_ANIMATING_OFF;
+            ctrl_anim.frame_index = 3;
+        }
+        ctrl_anim.last_update = now;
+    }
+
+    if ((ctrl_anim.state == CTRL_ANIMATING_ON || ctrl_anim.state == CTRL_ANIMATING_OFF) &&
+        (now - ctrl_anim.last_update) >= ANIM_FRAME_MS) {
+
+        if (ctrl_anim.state == CTRL_ANIMATING_ON) {
+            ctrl_anim.frame_index++;
+            if (ctrl_anim.frame_index >= 4) {
+                ctrl_anim.frame_index = 3;
+                ctrl_anim.state = CTRL_IDLE_ON;
+            }
+        } else {
+            ctrl_anim.frame_index--;
+            if (ctrl_anim.frame_index == 255) {
+                ctrl_anim.frame_index = 0;
+                ctrl_anim.state = CTRL_IDLE_OFF;
+            }
+        }
+        ctrl_anim.last_update = now;
+    }
+
+    draw_slice_px(&ctrl_frames[ctrl_anim.frame_index], 77, 22);
+}
+
+// TODO: Other modifiers temporarily disabled for testing
+/*
 static bool is_super_active(void) {
     uint8_t mods = get_mods() | get_oneshot_mods();
     return (mods & MOD_MASK_GUI) != 0;
@@ -223,10 +524,14 @@ DEFINE_SLICE_SEQ(layer_frame,
 bootrev_anim_t layer_frame_anim;
 static uint8_t last_layer = 0;
 
-// Modifier animation controllers (using toggle pattern)
+// Modifier animation controllers
 // TODO: Temporarily disabled to restore keyboard functionality
 /*
 toggle_anim_t caps_anim;
+*/
+
+// TODO: Other modifiers temporarily disabled for testing
+/*
 toggle_anim_t super_anim;
 toggle_anim_t alt_anim;
 toggle_anim_t shift_anim;
@@ -255,9 +560,11 @@ void init_widgets(void) {
     // Boot: 0→4, stay at 4. Layer changes: 4→0→4
     bootrev_anim_init(&layer_frame_anim, &layer_frame, 42, 0, /*run_boot_anim=*/true, now);
 
-    // Initialize modifier animations (all start at frame 0, inactive)
+    // Initialize modifier animations
     // TODO: Temporarily disabled to restore keyboard functionality
     // toggle_anim_init(&caps_anim, &caps_seq, 10, 2, false, now);
+
+    // TODO: Other modifiers temporarily disabled for testing
     // toggle_anim_init(&super_anim, &super_seq, 9, 22, false, now);
     // toggle_anim_init(&alt_anim, &alt_seq, 35, 22, false, now);
     // toggle_anim_init(&shift_anim, &shift_seq, 53, 22, false, now);
@@ -365,21 +672,12 @@ void tick_widgets(void) {
         }
     }
 
-    // Update modifier animations based on current state
-    // TODO: Temporarily disabled to restore keyboard functionality
-    // toggle_anim_set(&caps_anim, is_caps_active(), now);
-    // toggle_anim_set(&super_anim, is_super_active(), now);
-    // toggle_anim_set(&alt_anim, is_alt_active(), now);
-    // toggle_anim_set(&shift_anim, is_shift_active(), now);
-    // toggle_anim_set(&ctrl_anim, is_ctrl_active(), now);
-
-    // Render modifier animations
-    // TODO: Temporarily disabled to restore keyboard functionality
-    // toggle_anim_render(&caps_anim, now);
-    // toggle_anim_render(&super_anim, now);
-    // toggle_anim_render(&alt_anim, now);
-    // toggle_anim_render(&shift_anim, now);
-    // toggle_anim_render(&ctrl_anim, now);
+    // Update and draw all modifier animations
+    caps_anim_update_and_draw(now);
+    super_anim_update_and_draw(now);
+    alt_anim_update_and_draw(now);
+    shift_anim_update_and_draw(now);
+    ctrl_anim_update_and_draw(now);
 }
 
 void draw_wpm_frame(void) {
