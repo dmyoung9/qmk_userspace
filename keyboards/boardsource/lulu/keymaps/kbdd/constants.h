@@ -1,9 +1,12 @@
-enum layers { _QWERTY, _LOWER, _RAISE, _ADJUST };
+enum layers { _BASE, _NUM, _NAV, _FUNC, _VIM };
 
 // simple layers, no tri-layer
-#define LOWER MO(_LOWER)
-#define RAISE MO(_RAISE)
-#define ADJUST MO(_ADJUST)
+#define NUM MO(_NUM)
+#define NAV MO(_NAV)
+#define FUNC MO(_FUNC)
+#define VIM OSL(_VIM)
+
+#define VIM_GPT MT(VIM, A(KC_SPC))
 
 // mouse macros to keep layout consistent
 #define KC_MB1 KC_MS_BTN1

@@ -18,6 +18,7 @@
 #endif
 
 #define SPLIT_LAYER_STATE_ENABLE
+#define DYNAMIC_KEYMAP_LAYER_COUNT 5
 
 // Faster animation frame rate to reduce chance of getting stuck during rapid layer changes
 // Default is 80ms, reducing to 50ms makes transitions more responsive
