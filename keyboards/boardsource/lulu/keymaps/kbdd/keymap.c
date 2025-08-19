@@ -25,6 +25,7 @@ const indicator_t PROGMEM indicators[] = {
     KEYCODE_INDICATOR(MOD_HRC, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HRS, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HRA, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(TD(TD_SUPER_BRACKET), HUE(HUE_CYAN)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE)),
@@ -37,7 +38,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
     FUNC   , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
     CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , TD(TD_BLUETOOTH_MUTE), KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
-                               _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
+                  TD(TD_SUPER_BRACKET), NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
 ),
 
 [_NUM] = LAYOUT(
@@ -190,7 +191,39 @@ bool rgb_matrix_indicators_user(void) {
     return false;
 }
 
+void td_super_bracket_finished(tap_dance_state_t *state, void *user_data) {
+    uint8_t mods = get_mods();
+
+    bool ctrl = (mods & MOD_MASK_CTRL) != 0;
+    bool shift = (mods & MOD_MASK_SHIFT) != 0;
+
+    clear_mods();
+
+    if (state->count == 1) {
+        // single tap
+        if (ctrl && !shift) {
+            tap_code(KC_LBRC);        // [
+        } else if (shift && !ctrl) {
+            tap_code16(S(KC_LBRC));   // {
+        } else {
+            tap_code16(S(KC_9));      // (
+        }
+    } else if (state->count == 2) {
+        // double tap
+        if (ctrl && !shift) {
+            tap_code(KC_RBRC);        // ]
+        } else if (shift && !ctrl) {
+            tap_code16(S(KC_RBRC));   // }
+        } else {
+            tap_code16(S(KC_0));      // )
+        }
+    }
+
+    set_mods(mods);
+}
+
 tap_dance_action_t tap_dance_actions[] = {
     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
     [TD_BLUETOOTH_MUTE] = ACTION_TAP_DANCE_FN(td_bluetooth_mute_finished),
+    [TD_SUPER_BRACKET] = ACTION_TAP_DANCE_FN(td_super_bracket_finished),
 };
