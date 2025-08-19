@@ -3,14 +3,18 @@
 #include "anim.h"
 #include "wpm_stats.h"
 #include "oled_utils.h"
+#include "elpekenin/indicators.h"
+
+indicator_t indicators[7];
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+    // ----- STANDARD LAYERS -----
 	[_BASE] = LAYOUT(
 	  KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
-	  KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_EQL ,
+	  KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
 	  FUNC   , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
-	  CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, KC_BSLS,
-								 KC_LGUI, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , VIM_GPT
+	  CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
+								 _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , CUS_GPT
 	),
 
 	[_NUM] = LAYOUT(
@@ -36,23 +40,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
 								 _______, _______, _______, _______, _______, _______, _______, _______
 	),
-
-	[_VIM] = LAYOUT(
-	  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-	  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-	  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-	  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-								 _______, _______, _______, _______, _______, _______, _______, _______
-	)
 };
 
 #ifdef ENCODER_MAP_ENABLE
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
-    [1] = { ENCODER_CCW_CW(KC_PGUP, KC_PGDN) },
-    [2] = { ENCODER_CCW_CW(_______, _______) },
+    [1] = { ENCODER_CCW_CW(S(KC_TAB), KC_TAB) },
+    [2] = { ENCODER_CCW_CW(KC_PGUP, KC_PGDN) },
     [3] = { ENCODER_CCW_CW(_______, _______) },
-    [4] = { ENCODER_CCW_CW(_______, _______) }
 };
 #endif
 
@@ -75,6 +70,11 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 #endif
 
 void keyboard_post_init_user(void) {
+    // Initialize indicators
+    indicators[0] = ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW));
+    indicators[1] = ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE));
+    indicators[2] = ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE));
+
     wpm_stats_init();
     wpm_stats_init_split_sync();
     wpm_stats_oled_init();
@@ -84,14 +84,11 @@ void keyboard_post_init_user(void) {
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    // Force immediate widget update on layer changes to prevent animation getting stuck
-    // This ensures the widget sees layer changes immediately rather than waiting for OLED refresh
     tick_widgets();
     return state;
 }
 
 void matrix_scan_user(void) {
-    // Handle WPM statistics periodic tasks (only on master)
     if (is_keyboard_master()) {
         wpm_stats_task();
     }
@@ -106,3 +103,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), G(KC_R))
+};

@@ -1,4 +1,5 @@
 SRC += anim.c progmem_anim.c
+
 CONVERT_TO=blok
 VIA_ENABLE = yes
 ENCODER_MAP_ENABLE = yes
@@ -7,3 +8,4 @@ KEYCODE_STRING_ENABLE = yes
 WPM_ENABLE = yes
 CAPS_WORD_ENABLE = yes
 OLED_ENABLE = yes
+TAP_DANCE_ENABLE = yes

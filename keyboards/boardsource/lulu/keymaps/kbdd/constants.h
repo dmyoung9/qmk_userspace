@@ -1,12 +1,14 @@
-enum layers { _BASE, _NUM, _NAV, _FUNC, _VIM };
+#include QMK_KEYBOARD_H
+
+enum layers { _BASE, _NUM, _NAV, _FUNC };
+enum { TD_CMD };
 
 // simple layers, no tri-layer
 #define NUM MO(_NUM)
 #define NAV MO(_NAV)
 #define FUNC MO(_FUNC)
-#define VIM OSL(_VIM)
 
-#define VIM_GPT MT(VIM, A(KC_SPC))
+#define CUS_GPT A(KC_SPC)
 
 // mouse macros to keep layout consistent
 #define KC_MB1 KC_MS_BTN1
