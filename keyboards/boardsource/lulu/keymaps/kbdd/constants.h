@@ -8,8 +8,6 @@ enum { TD_CMD };
 #define NAV MO(_NAV)
 #define FUNC MO(_FUNC)
 
-#define CUS_GPT A(KC_SPC)
-
 // mouse macros to keep layout consistent
 #define KC_MB1 KC_MS_BTN1
 #define KC_MB2 KC_MS_BTN2

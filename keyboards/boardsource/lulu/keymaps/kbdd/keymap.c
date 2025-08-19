@@ -1,4 +1,5 @@
 #include QMK_KEYBOARD_H
+
 #include "constants.h"
 #include "anim.h"
 #include "wpm_stats.h"
@@ -8,38 +9,38 @@
 indicator_t indicators[7];
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    // ----- STANDARD LAYERS -----
-	[_BASE] = LAYOUT(
-	  KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
-	  KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
-	  FUNC   , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
-	  CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
-								 _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , CUS_GPT
-	),
+// ----- STANDARD LAYERS -----
+[_BASE] = LAYOUT(
+    KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
+    KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
+    FUNC   , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
+    CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
+                               _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
+),
 
-	[_NUM] = LAYOUT(
-	  _______, _______, _______, _______, _______, _______,                   KC_LBRC, KC_P7  , KC_P8  , KC_P9  , KC_RBRC, _______,
-	  _______, _______, _______, _______, _______, _______,                   KC_PMNS, KC_P4  , KC_P5  , KC_P6  , KC_PSLS, _______,
-	  _______, _______, _______, _______, _______, _______,                   KC_PPLS, KC_P1  , KC_P2  , KC_P3  , KC_PAST, _______,
-	  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-								 _______, _______, _______, _______, KC_P0  , KC_PENT, KC_PDOT, _______
-	),
+[_NUM] = LAYOUT(
+    _______, _______, _______, _______, _______, _______,                   XXXXXXX, XXXXXXX, KC_PSLS, KC_PAST, XXXXXXX, XXXXXXX,
+    _______, _______, _______, _______, _______, _______,                   KC_PMNS, KC_P7  , KC_P8  , KC_P9  , XXXXXXX, XXXXXXX,
+    _______, _______, _______, _______, _______, _______,                   KC_PPLS, KC_P4  , KC_P5  , KC_P6  , XXXXXXX, XXXXXXX,
+    _______, _______, _______, _______, _______, _______, _______, _______, KC_PDOT, KC_P1  , KC_P2  , KC_P3  , XXXXXXX, XXXXXXX,
+                               _______, _______, _______, _______, KC_P0  , KC_EQL , _______, KC_CALC
+),
 
-	[_NAV] = LAYOUT(
-	  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-	  _______, KC_MB2 , KC_MUP , KC_MB1 , _______, _______,                   KC_HOME, KC_PGDN, KC_PGUP, KC_END , _______, _______,
-	  _______, KC_MLFT, KC_MDWN, KC_MRGT, _______, _______,                   KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
-	  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-								 _______, _______, _______, _______, _______, _______, _______, _______
-	),
+[_NAV] = LAYOUT(
+    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, KC_MYCM, _______, LSG(KC_LEFT),              KC_HOME, KC_PGDN, KC_PGUP, KC_END , _______, _______,
+    _______, _______, _______, _______, _______, _______,                   KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
+    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                               _______, _______, _______, _______, _______, _______, _______, _______
+),
 
-	[_FUNC] = LAYOUT(
-	  _______, _______, _______, _______, _______, _______,                   _______, KC_F9  , KC_F10 , KC_F11 , KC_F12 , _______,
-	  _______, _______, _______, _______, _______, _______,                   _______, KC_F5  , KC_F6  , KC_F7  , KC_F8  , _______,
-	  _______, _______, _______, _______, _______, _______,                   _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
-	  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-								 _______, _______, _______, _______, _______, _______, _______, _______
-	),
+[_FUNC] = LAYOUT(
+    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, _______, LSG(KC_R), _______,               LSG(KC_S), KC_F9  , KC_F10 , KC_F11 , KC_F12 , _______,
+    _______, _______, _______, _______, _______, _______,                   _______, KC_F5  , KC_F6  , KC_F7  , KC_F8  , _______,
+    _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
+                               _______, _______, _______, _______, _______, _______, _______, _______
+),
 };
 
 #ifdef ENCODER_MAP_ENABLE
@@ -104,5 +105,5 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), G(KC_R))
+    [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN)
 };
