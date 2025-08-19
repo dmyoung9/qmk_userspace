@@ -28,3 +28,12 @@ enum { TD_CMD };
 #define MOD_HRA MT(MOD_RALT, KC_L)
 #define MOD_HRG MT(MOD_RGUI, KC_SCLN)
 
+enum combos {
+    COMBO_LPAREN,
+    COMBO_RPAREN,
+    COMBO_LBRACK,
+    COMBO_RBRACK,
+    COMBO_LBRACE,
+    COMBO_RBRACE,
+};
+

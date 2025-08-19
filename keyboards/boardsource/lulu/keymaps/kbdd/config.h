@@ -2,19 +2,25 @@
 #define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_TYPING_HEATMAP
 
 #ifdef ENCODER_ENABLE
-#undef ENCODER_A_PINS
-#undef ENCODER_B_PINS
-#undef ENCODER_RESOLUTIONS
-#undef ENCODER_A_PINS_RIGHT
-#undef ENCODER_B_PINS_RIGHT
-#undef ENCODER_RESOLUTIONS_RIGHT
+#    undef ENCODER_A_PINS
+#    undef ENCODER_B_PINS
+#    undef ENCODER_RESOLUTIONS
+#    undef ENCODER_A_PINS_RIGHT
+#    undef ENCODER_B_PINS_RIGHT
+#    undef ENCODER_RESOLUTIONS_RIGHT
 
-#define ENCODER_A_PINS { }
-#define ENCODER_B_PINS { }
-#define ENCODER_RESOLUTIONS { }
-#define ENCODER_A_PINS_RIGHT { F5 }
-#define ENCODER_B_PINS_RIGHT { F4 }
-#define ENCODER_RESOLUTIONS_RIGHT { 4 }
+#    define ENCODER_A_PINS \
+        {                  \
+        }
+#    define ENCODER_B_PINS \
+        {                  \
+        }
+#    define ENCODER_RESOLUTIONS \
+        {                       \
+        }
+#    define ENCODER_A_PINS_RIGHT {F5}
+#    define ENCODER_B_PINS_RIGHT {F4}
+#    define ENCODER_RESOLUTIONS_RIGHT {4}
 #endif
 
 #define SPLIT_LAYER_STATE_ENABLE
@@ -39,5 +45,7 @@
 #define WPM_BAR_HEIGHT 11
 
 #define SPLIT_WPM_ENABLE
+#define SPLIT_ACTIVITY_ENABLE
 
-#define SPLIT_TRANSACTION_IDS_USER WPM_STATS_SYNC
+#undef SPLIT_TRANSACTION_IDS_USER
+#define SPLIT_TRANSACTION_IDS_USER WPM_STATS_SYNC, ENCODER_LED_SYNC

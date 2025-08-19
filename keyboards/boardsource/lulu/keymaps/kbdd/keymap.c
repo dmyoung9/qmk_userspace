@@ -5,6 +5,7 @@
 #include "wpm_stats.h"
 #include "oled_utils.h"
 #include "elpekenin/indicators.h"
+#include "encoder_led.h"
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
@@ -14,13 +15,13 @@ const indicator_t PROGMEM indicators[] = {
     KEYCODE_INDICATOR(FUNC, HUE(HUE_ORANGE)),
     KEYCODE_INDICATOR(KC_BSPC, HUE(HUE_RED)),
     KEYCODE_INDICATOR(KC_W, HUE(HUE_CYAN)),
-    KEYCODE_INDICATOR(KC_A, HUE(HUE_CYAN)),
-    KEYCODE_INDICATOR(KC_S, HUE(HUE_CYAN)),
-    KEYCODE_INDICATOR(KC_D, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(MOD_HLG, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(MOD_HLA, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(MOD_HLS, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(KC_H, HUE(HUE_CYAN)),
-    KEYCODE_INDICATOR(KC_J, HUE(HUE_CYAN)),
-    KEYCODE_INDICATOR(KC_K, HUE(HUE_CYAN)),
-    KEYCODE_INDICATOR(KC_L, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(MOD_HRC, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(MOD_HRS, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(MOD_HRA, HUE(HUE_CYAN)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE)),
@@ -33,7 +34,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
     FUNC   , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
     CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
-                               _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
+                      _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
 ),
 
 [_NUM] = LAYOUT(
@@ -70,6 +71,24 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif
 
+#ifdef COMBO_ENABLE
+const uint16_t PROGMEM lp_combo[] = {KC_Y, KC_U, COMBO_END};
+const uint16_t PROGMEM rp_combo[] = {KC_N, KC_M, COMBO_END};
+const uint16_t PROGMEM lb_combo[] = {KC_U, KC_I, COMBO_END};
+const uint16_t PROGMEM rb_combo[] = {KC_M, KC_COMM, COMBO_END};
+const uint16_t PROGMEM lc_combo[] = {KC_I, KC_O, COMBO_END};
+const uint16_t PROGMEM rc_combo[] = {KC_COMM, KC_DOT, COMBO_END};
+
+combo_t key_combos[] = {
+    [COMBO_LPAREN] = COMBO(lp_combo, KC_LPRN),   // (
+    [COMBO_RPAREN] = COMBO(rp_combo, KC_RPRN),   // )
+    [COMBO_LBRACK] = COMBO(lb_combo, KC_LBRC),   // [
+    [COMBO_RBRACK] = COMBO(rb_combo, KC_RBRC),   // ]
+    [COMBO_LBRACE] = COMBO(lc_combo, KC_LCBR),   // {
+    [COMBO_RBRACE] = COMBO(rc_combo, KC_RCBR),   // }
+};
+#endif
+
 #ifdef OLED_ENABLE
 bool oled_task_user(void) {
     if (!is_keyboard_master()) {
@@ -92,6 +111,9 @@ void keyboard_post_init_user(void) {
     wpm_stats_init();
     wpm_stats_init_split_sync();
     wpm_stats_oled_init();
+
+    encoder_led_sync_init_split_sync();
+
     oled_clear();
 
     init_widgets();
@@ -114,9 +136,17 @@ void housekeeping_task_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     wpm_stats_on_keyevent(record);
+    encoder_led_sync_on_keyevent(record);
+
     return true;
 }
 
+bool rgb_matrix_indicators_user(void) {
+    encoder_led_sync_rgb_task();
+
+    return false;
+}
+
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN)
+     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
 };
