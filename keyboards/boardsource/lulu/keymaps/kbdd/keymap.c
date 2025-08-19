@@ -6,7 +6,7 @@
 #include "oled_utils.h"
 #include "elpekenin/indicators.h"
 
-indicator_t indicators[7];
+indicator_t PROGMEM indicators[16];
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // ----- STANDARD LAYERS -----
@@ -72,9 +72,22 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 
 void keyboard_post_init_user(void) {
     // Initialize indicators
-    indicators[0] = ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW));
-    indicators[1] = ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE));
-    indicators[2] = ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE));
+    indicators[0] = KEYCODE_INDICATOR(NUM, HUE(HUE_YELLOW));
+    indicators[1] = KEYCODE_INDICATOR(KC_ESC, HUE(HUE_YELLOW));
+    indicators[2] = KEYCODE_INDICATOR(NAV, HUE(HUE_PURPLE));
+    indicators[3] = KEYCODE_INDICATOR(FUNC, HUE(HUE_ORANGE));
+    indicators[4] = KEYCODE_INDICATOR(KC_BSPC, HUE(HUE_RED));
+    indicators[5] = KEYCODE_INDICATOR(KC_W, HUE(HUE_CYAN));
+    indicators[6] = KEYCODE_INDICATOR(KC_A, HUE(HUE_CYAN));
+    indicators[7] = KEYCODE_INDICATOR(KC_S, HUE(HUE_CYAN));
+    indicators[8] = KEYCODE_INDICATOR(KC_D, HUE(HUE_CYAN));
+    indicators[9] = KEYCODE_INDICATOR(KC_H, HUE(HUE_CYAN));
+    indicators[10] = KEYCODE_INDICATOR(KC_J, HUE(HUE_CYAN));
+    indicators[11] = KEYCODE_INDICATOR(KC_K, HUE(HUE_CYAN));
+    indicators[12] = KEYCODE_INDICATOR(KC_L, HUE(HUE_CYAN));
+    indicators[13] = ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW));
+    indicators[14] = ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE));
+    indicators[15] = ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE));
 
     wpm_stats_init();
     wpm_stats_init_split_sync();
