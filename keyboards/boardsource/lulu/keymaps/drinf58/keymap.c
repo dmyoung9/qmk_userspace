@@ -61,7 +61,6 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #endif
 
 #ifdef OLED_ENABLE
-
 bool oled_task_user(void) {
   if (!is_keyboard_master()) {
 	  render_slave();
