@@ -5,6 +5,7 @@
 #include "wpm_stats.h"
 #include "oled_utils.h"
 #include "elpekenin/indicators.h"
+#include "encoder_led.h"
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
@@ -110,6 +111,10 @@ void keyboard_post_init_user(void) {
     wpm_stats_init();
     wpm_stats_init_split_sync();
     wpm_stats_oled_init();
+
+    encoder_led_sync_init();
+    encoder_led_sync_init_split_sync();
+
     oled_clear();
 
     init_widgets();
@@ -128,11 +133,20 @@ void matrix_scan_user(void) {
 
 void housekeeping_task_user(void) {
     wpm_stats_housekeeping_task();
+    encoder_led_sync_housekeeping_task();
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     wpm_stats_on_keyevent(record);
+    encoder_led_sync_on_keyevent(record);
+
     return true;
+}
+
+bool rgb_matrix_indicators_user(void) {
+    encoder_led_sync_rgb_task();
+
+    return false;
 }
 
 tap_dance_action_t tap_dance_actions[] = {
