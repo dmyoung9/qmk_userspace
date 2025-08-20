@@ -5,6 +5,7 @@
 #include "wpm_stats.h"
 #include "oled_utils.h"
 #include "elpekenin/indicators.h"
+#include "encoder_led.h"
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
@@ -80,12 +81,12 @@ const uint16_t PROGMEM lc_combo[] = {KC_I, KC_O, COMBO_END};
 const uint16_t PROGMEM rc_combo[] = {KC_COMM, KC_DOT, COMBO_END};
 
 combo_t key_combos[] = {
-    [COMBO_LPAREN] = COMBO(lp_combo, KC_LPRN),   // (
-    [COMBO_RPAREN] = COMBO(rp_combo, KC_RPRN),   // )
-    [COMBO_LBRACK] = COMBO(lb_combo, KC_LBRC),   // [
-    [COMBO_RBRACK] = COMBO(rb_combo, KC_RBRC),   // ]
-    [COMBO_LBRACE] = COMBO(lc_combo, KC_LCBR),   // {
-    [COMBO_RBRACE] = COMBO(rc_combo, KC_RCBR),   // }
+    [COMBO_LPAREN] = COMBO(lp_combo, KC_LPRN), // (
+    [COMBO_RPAREN] = COMBO(rp_combo, KC_RPRN), // )
+    [COMBO_LBRACK] = COMBO(lb_combo, KC_LBRC), // [
+    [COMBO_RBRACK] = COMBO(rb_combo, KC_RBRC), // ]
+    [COMBO_LBRACE] = COMBO(lc_combo, KC_LCBR), // {
+    [COMBO_RBRACE] = COMBO(rc_combo, KC_RCBR), // }
 };
 #endif
 
@@ -103,7 +104,7 @@ bool oled_task_user(void) {
 }
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    return rotation;  // oriented correctly
+    return rotation; // oriented correctly
 }
 #endif
 
@@ -111,6 +112,10 @@ void keyboard_post_init_user(void) {
     wpm_stats_init();
     wpm_stats_init_split_sync();
     wpm_stats_oled_init();
+
+    encoder_led_sync_init();
+    encoder_led_sync_init_split_sync();
+
     oled_clear();
 
     init_widgets();
@@ -129,17 +134,20 @@ void matrix_scan_user(void) {
 
 void housekeeping_task_user(void) {
     wpm_stats_housekeeping_task();
+    encoder_led_sync_housekeeping_task();
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     wpm_stats_on_keyevent(record);
+    encoder_led_sync_on_keyevent(record);
+
     return true;
 }
 
 void td_super_bracket_finished(tap_dance_state_t *state, void *user_data) {
     uint8_t mods = get_mods();
 
-    bool ctrl = (mods & MOD_MASK_CTRL) != 0;
+    bool ctrl  = (mods & MOD_MASK_CTRL) != 0;
     bool shift = (mods & MOD_MASK_SHIFT) != 0;
 
     clear_mods();
@@ -147,27 +155,33 @@ void td_super_bracket_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
         // single tap
         if (ctrl && !shift) {
-            tap_code(KC_LBRC);        // [
+            tap_code(KC_LBRC); // [
         } else if (shift && !ctrl) {
-            tap_code16(S(KC_LBRC));   // {
+            tap_code16(S(KC_LBRC)); // {
         } else {
-            tap_code16(S(KC_9));      // (
+            tap_code16(S(KC_9)); // (
         }
     } else if (state->count == 2) {
         // double tap
         if (ctrl && !shift) {
-            tap_code(KC_RBRC);        // ]
+            tap_code(KC_RBRC); // ]
         } else if (shift && !ctrl) {
-            tap_code16(S(KC_RBRC));   // }
+            tap_code16(S(KC_RBRC)); // }
         } else {
-            tap_code16(S(KC_0));      // )
+            tap_code16(S(KC_0)); // )
         }
     }
 
     set_mods(mods);
 }
 
+bool rgb_matrix_indicators_user(void) {
+    encoder_led_sync_rgb_task();
+
+    return false;
+}
+
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
+    [TD_CMD]           = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
     [TD_SUPER_BRACKET] = ACTION_TAP_DANCE_FN(td_super_bracket_finished),
 };
