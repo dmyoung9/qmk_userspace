@@ -1,7 +1,6 @@
 #include QMK_KEYBOARD_H
 
 typedef struct {
-    uint32_t elapsed;
     bool clockwise;
 } encoder_led_t;
 
