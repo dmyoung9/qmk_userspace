@@ -70,6 +70,24 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif
 
+#ifdef COMBO_ENABLE
+const uint16_t PROGMEM lp_combo[] = {KC_Y, KC_U, COMBO_END};
+const uint16_t PROGMEM rp_combo[] = {KC_N, KC_M, COMBO_END};
+const uint16_t PROGMEM lb_combo[] = {KC_U, KC_I, COMBO_END};
+const uint16_t PROGMEM rb_combo[] = {KC_M, KC_COMM, COMBO_END};
+const uint16_t PROGMEM lc_combo[] = {KC_I, KC_O, COMBO_END};
+const uint16_t PROGMEM rc_combo[] = {KC_COMM, KC_DOT, COMBO_END};
+
+combo_t key_combos[] = {
+    [COMBO_LPAREN] = COMBO(lp_combo, KC_LPRN),   // (
+    [COMBO_RPAREN] = COMBO(rp_combo, KC_RPRN),   // )
+    [COMBO_LBRACK] = COMBO(lb_combo, KC_LBRC),   // [
+    [COMBO_RBRACK] = COMBO(rb_combo, KC_RBRC),   // ]
+    [COMBO_LBRACE] = COMBO(lc_combo, KC_LCBR),   // {
+    [COMBO_RBRACE] = COMBO(rc_combo, KC_RCBR),   // }
+};
+#endif
+
 #ifdef OLED_ENABLE
 bool oled_task_user(void) {
     if (!is_keyboard_master()) {
