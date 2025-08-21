@@ -91,7 +91,15 @@ combo_t key_combos[] = {
 #endif
 
 #ifdef OLED_ENABLE
+static bool is_device_idle = false;
+
 bool oled_task_user(void) {
+    if (!is_device_idle) {
+        oled_on();
+    } else {
+        oled_off();
+    }
+
     if (!is_keyboard_master()) {
         draw_wpm_frame();
         wpm_stats_oled_render();
@@ -133,6 +141,12 @@ void matrix_scan_user(void) {
 
 void housekeeping_task_user(void) {
     wpm_stats_housekeeping_task();
+
+    if (last_input_activity_elapsed() > OLED_TIMEOUT) {
+        is_device_idle = true;
+    } else {
+        is_device_idle = false;
+    }
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -142,8 +156,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+void rgb_matrix_indicators_clear(uint8_t led_min, uint8_t led_max) {
+    for (int8_t row = 0; row < MATRIX_ROWS; ++row) {
+        for (int8_t col = 0; col < MATRIX_COLS; ++col) {
+            uint8_t index = g_led_config.matrix_co[row][col];
+
+            // early exit if out of range
+            if (index < led_min || index >= led_max) {
+                continue;
+            }
+
+            rgb_matrix_set_color(index, 0, 0, 0);
+        }
+    }
+}
+
 bool rgb_matrix_indicators_user(void) {
     encoder_led_sync_rgb_task();
+
+    return false;
+}
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    if (is_device_idle) {
+        rgb_matrix_indicators_clear(led_min, led_max);
+    }
 
     return false;
 }
