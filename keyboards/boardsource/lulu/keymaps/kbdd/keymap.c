@@ -113,7 +113,6 @@ void keyboard_post_init_user(void) {
     wpm_stats_init_split_sync();
     wpm_stats_oled_init();
 
-    encoder_led_sync_init();
     encoder_led_sync_init_split_sync();
 
     oled_clear();
@@ -134,7 +133,6 @@ void matrix_scan_user(void) {
 
 void housekeeping_task_user(void) {
     wpm_stats_housekeeping_task();
-    encoder_led_sync_housekeeping_task();
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
