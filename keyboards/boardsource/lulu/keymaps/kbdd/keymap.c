@@ -34,8 +34,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
     KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
     FUNC   , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
-    CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
-                      _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
+    CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , TD(TD_BLUETOOTH_MUTE), KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
+                               _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
 ),
 
 [_NUM] = LAYOUT(
@@ -156,6 +156,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        // single tap
+        tap_code(KC_MUTE);
+    } else if (state->count == 2) {
+        tap_code16(G(KC_A));
+        wait_ms(100);
+        tap_code(KC_RIGHT);
+        wait_ms(100);
+        tap_code(KC_SPC);
+        wait_ms(100);
+        tap_code(KC_ESC);
+    }
+}
+
 void rgb_matrix_indicators_clear(uint8_t led_min, uint8_t led_max) {
     for (int8_t row = 0; row < MATRIX_ROWS; ++row) {
         for (int8_t col = 0; col < MATRIX_COLS; ++col) {
@@ -186,5 +201,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 }
 
 tap_dance_action_t tap_dance_actions[] = {
-     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
+    [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
+    [TD_BLUETOOTH_MUTE] = ACTION_TAP_DANCE_FN(td_bluetooth_mute_finished),
 };

@@ -1,7 +1,7 @@
 #include QMK_KEYBOARD_H
 
 enum layers { _BASE, _NUM, _NAV, _FUNC };
-enum { TD_CMD };
+enum { TD_CMD, TD_BLUETOOTH_MUTE };
 
 // simple layers, no tri-layer
 #define NUM MO(_NUM)
