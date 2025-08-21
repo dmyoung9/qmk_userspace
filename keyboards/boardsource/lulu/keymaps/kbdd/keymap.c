@@ -9,6 +9,7 @@
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
+    KEYCODE_INDICATOR(KC_ENT, RGB_COLOR(255, 255, 255)),
     KEYCODE_INDICATOR(NUM, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(KC_ESC, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(NAV, HUE(HUE_PURPLE)),
