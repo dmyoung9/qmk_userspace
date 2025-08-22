@@ -11,15 +11,9 @@
 #    undef ENCODER_B_PINS_RIGHT
 #    undef ENCODER_RESOLUTIONS_RIGHT
 
-#    define ENCODER_A_PINS \
-        {                  \
-        }
-#    define ENCODER_B_PINS \
-        {                  \
-        }
-#    define ENCODER_RESOLUTIONS \
-        {                       \
-        }
+#    define ENCODER_A_PINS { }
+#    define ENCODER_B_PINS { }
+#    define ENCODER_RESOLUTIONS { }
 #    define ENCODER_A_PINS_RIGHT {F5}
 #    define ENCODER_B_PINS_RIGHT {F4}
 #    define ENCODER_RESOLUTIONS_RIGHT {4}
