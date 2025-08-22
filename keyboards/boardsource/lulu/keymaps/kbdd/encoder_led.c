@@ -39,8 +39,8 @@ void encoder_led_sync_rgb_task(void) {
     if (!g_encoder_led_sync_split_initialized) return;
 
     if (!is_keyboard_master()) {
-        if (g_slave_encoder_led_data.elapsed < 500) {
-            if (g_slave_encoder_led_data.clockwise) {
+        if (last_encoder_activity_elapsed() < 500) {
+            if (g_encoder_clockwise) {
                 rgb_matrix_set_color(ENCODER_LED_INDEX, 0, 0xff, 0);
             } else {
                 rgb_matrix_set_color(ENCODER_LED_INDEX, 0xff, 0, 0);
