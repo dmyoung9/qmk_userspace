@@ -1,7 +1,14 @@
 #define ENABLE_RGB_MATRIX_TYPING_HEATMAP
 #define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_TYPING_HEATMAP
+#define RGB_MATRIX_TIMEOUT 15000 // number of milliseconds to wait until rgb automatically turns off
 
-#define OLED_TIMEOUT 60000
+// RGB Fade-out configuration
+#define RGB_FADE_START_TIMEOUT 12000  // Start fading after 10 seconds of inactivity
+#define RGB_FADE_STEP_INTERVAL 176    // Fade step every 500ms (uses RGB_MATRIX_VAL_STEP for step size)
+#define RGB_FADE_MIN_BRIGHTNESS 0    // Minimum brightness before turning off completely
+#define RGB_MATRIX_SLEEP
+
+#define OLED_TIMEOUT 15000
 
 #ifdef ENCODER_ENABLE
 #    undef ENCODER_A_PINS
