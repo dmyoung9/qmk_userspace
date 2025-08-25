@@ -2,6 +2,23 @@
 
 #include "constants.h"
 #include "anim.h"
+
+// RGB fade-out state tracking
+static uint8_t original_brightness = 0;
+static uint32_t last_fade_time = 0;
+static bool is_fading = false;
+static bool brightness_saved = false;
+
+// Helper function to restore brightness on activity
+static void restore_brightness_on_activity(void) {
+    if (is_fading && brightness_saved) {
+        // Restore original brightness using the matrix API
+        while (rgb_matrix_get_val() < original_brightness) {
+            rgb_matrix_increase_val_noeeprom();
+        }
+        is_fading = false;
+    }
+}
 #include "wpm_stats.h"
 #include "oled_utils.h"
 #include "elpekenin/indicators.h"
@@ -9,6 +26,7 @@
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
+    KEYCODE_INDICATOR(KC_ENT, HSV_COLOR(HSV_WHITE)),
     KEYCODE_INDICATOR(NUM, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(KC_ESC, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(NAV, HUE(HUE_PURPLE)),
@@ -33,13 +51,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
     KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
     FUNC   , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
-    CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
-                      _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
+    CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , TD(TD_BLUETOOTH_MUTE), KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
+                               _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
 ),
 
 [_NUM] = LAYOUT(
     _______, _______, _______, _______, _______, _______,                   XXXXXXX, XXXXXXX, KC_PSLS, KC_PAST, XXXXXXX, XXXXXXX,
-    _______, _______, _______, _______, _______, _______,                   KC_PMNS, KC_P7  , KC_P8  , KC_P9  , XXXXXXX, XXXXXXX,
+  _______, _______, _______,G(KC_SCLN), _______, _______,                   KC_PMNS, KC_P7  , KC_P8  , KC_P9  , XXXXXXX, XXXXXXX,
     _______, _______, _______, _______, _______, _______,                   KC_PPLS, KC_P4  , KC_P5  , KC_P6  , XXXXXXX, XXXXXXX,
     _______, _______, _______, _______, _______, _______, _______, _______, KC_PDOT, KC_P1  , KC_P2  , KC_P3  , XXXXXXX, XXXXXXX,
                                _______, _______, _______, _______, KC_P0  , KC_EQL , _______, KC_CALC
@@ -47,9 +65,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [_NAV] = LAYOUT(
     _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, KC_MYCM, _______, LSG(KC_LEFT),              KC_HOME, KC_PGDN, KC_PGUP, KC_END , _______, _______,
-    _______, _______, _______, _______, _______, _______,                   KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+    _______, _______,G(KC_UP), KC_MYCM, _______, LSG(KC_LEFT),              KC_HOME, KC_PGDN, KC_PGUP, KC_END , _______, _______,
+ _______,G(KC_LEFT),G(KC_DOWN),G(KC_RGHT), _______, G(KC_S),                   KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
+    _______, _______, _______, _______, _______, G(KC_D), _______, _______, _______, _______, _______, _______, _______, _______,
                                _______, _______, _______, _______, _______, _______, _______, _______
 ),
 
@@ -91,6 +109,13 @@ combo_t key_combos[] = {
 
 #ifdef OLED_ENABLE
 bool oled_task_user(void) {
+    if (last_input_activity_elapsed() < OLED_TIMEOUT) {
+        oled_on();
+    } else {
+        oled_off();
+        return false;
+    }
+
     if (!is_keyboard_master()) {
         draw_wpm_frame();
         wpm_stats_oled_render();
@@ -112,7 +137,6 @@ void keyboard_post_init_user(void) {
     wpm_stats_init_split_sync();
     wpm_stats_oled_init();
 
-    encoder_led_sync_init();
     encoder_led_sync_init_split_sync();
 
     oled_clear();
@@ -133,22 +157,74 @@ void matrix_scan_user(void) {
 
 void housekeeping_task_user(void) {
     wpm_stats_housekeeping_task();
-    encoder_led_sync_housekeeping_task();
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     wpm_stats_on_keyevent(record);
     encoder_led_sync_on_keyevent(record);
 
+    // Restore brightness immediately on any key press
+    if (record->event.pressed) {
+        restore_brightness_on_activity();
+    }
+
     return true;
 }
 
+void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        // single tap
+        tap_code(KC_MUTE);
+    } else if (state->count == 2) {
+        tap_code16(G(KC_A));
+        wait_ms(100);
+        tap_code(KC_RIGHT);
+        wait_ms(100);
+        tap_code(KC_SPC);
+        wait_ms(100);
+        tap_code(KC_ESC);
+    }
+}
+
 bool rgb_matrix_indicators_user(void) {
+    uint32_t inactivity_time = last_input_activity_elapsed();
+    uint32_t current_time = timer_read32();
+
+    // Save original brightness on first run or when not fading
+    if (!brightness_saved && !is_fading) {
+        original_brightness = rgb_matrix_get_val();
+        brightness_saved = true;
+    }
+
+    // Handle fade-out logic
+    if (inactivity_time >= RGB_FADE_START_TIMEOUT && inactivity_time < RGB_MATRIX_TIMEOUT) {
+        if (!is_fading) {
+            is_fading = true;
+            last_fade_time = current_time;
+        }
+
+        // Check if it's time for the next fade step
+        if (current_time - last_fade_time >= RGB_FADE_STEP_INTERVAL) {
+            uint8_t current_val = rgb_matrix_get_val();
+            if (current_val > RGB_FADE_MIN_BRIGHTNESS) {
+                // Decrease brightness using the matrix API - this preserves individual key colors
+                rgb_matrix_decrease_val_noeeprom();
+                last_fade_time = current_time;
+            }
+        }
+    }
+    // Complete timeout - turn off completely
+    else if (inactivity_time >= RGB_MATRIX_TIMEOUT) {
+        rgb_matrix_set_color_all(0, 0, 0);
+        return false;
+    }
+
     encoder_led_sync_rgb_task();
 
     return false;
 }
 
 tap_dance_action_t tap_dance_actions[] = {
-     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
+    [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
+    [TD_BLUETOOTH_MUTE] = ACTION_TAP_DANCE_FN(td_bluetooth_mute_finished),
 };
