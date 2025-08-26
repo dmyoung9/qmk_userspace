@@ -1,4 +1,4 @@
-SRC += anim.c progmem_anim.c encoder_led.c
+SRC += anim.c progmem_anim.c encoder_led.c rgb_activity.c
 
 CONVERT_TO=blok
 VIA_ENABLE = yes

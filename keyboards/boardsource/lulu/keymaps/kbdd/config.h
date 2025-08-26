@@ -6,6 +6,10 @@
 #define RGB_FADE_START_TIMEOUT 14000  // Start fading after 10 seconds of inactivity
 #define RGB_FADE_STEP_INTERVAL 60    // Fade step every 500ms (uses RGB_MATRIX_VAL_STEP for step size)
 #define RGB_FADE_MIN_BRIGHTNESS 0    // Minimum brightness before turning off completely
+#define RGB_FADE_MIN_SATURATION 0    // Minimum saturation before turning off completely
+
+// RGB Fade-in configuration
+#define RGB_FADE_IN_STEP_INTERVAL 100 // Fade-in step every 100ms (faster than fade-out for responsiveness)
 #define RGB_MATRIX_SLEEP
 
 #define OLED_TIMEOUT 15000

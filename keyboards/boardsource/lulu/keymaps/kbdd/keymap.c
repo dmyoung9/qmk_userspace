@@ -2,23 +2,9 @@
 
 #include "constants.h"
 #include "anim.h"
+#include "rgb_activity.h"
 
-// RGB fade-out state tracking
-static uint8_t original_brightness = 0;
-static uint32_t last_fade_time = 0;
-static bool is_fading = false;
-static bool brightness_saved = false;
 
-// Helper function to restore brightness on activity
-static void restore_brightness_on_activity(void) {
-    if (is_fading && brightness_saved) {
-        // Restore original brightness using the matrix API
-        while (rgb_matrix_get_val() < original_brightness) {
-            rgb_matrix_increase_val_noeeprom();
-        }
-        is_fading = false;
-    }
-}
 #include "wpm_stats.h"
 #include "oled_utils.h"
 #include "elpekenin/indicators.h"
@@ -26,7 +12,6 @@ static void restore_brightness_on_activity(void) {
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
-    KEYCODE_INDICATOR(KC_ENT, HSV_COLOR(HSV_WHITE)),
     KEYCODE_INDICATOR(NUM, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(KC_ESC, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(NAV, HUE(HUE_PURPLE)),
@@ -139,6 +124,8 @@ void keyboard_post_init_user(void) {
 
     encoder_led_sync_init_split_sync();
 
+    rgb_activity_init();
+
     oled_clear();
 
     init_widgets();
@@ -163,9 +150,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     wpm_stats_on_keyevent(record);
     encoder_led_sync_on_keyevent(record);
 
-    // Restore brightness immediately on any key press
+    // Notify RGB activity module of key press
     if (record->event.pressed) {
-        restore_brightness_on_activity();
+        rgb_activity_on_keypress();
     }
 
     return true;
@@ -188,33 +175,12 @@ void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
 
 bool rgb_matrix_indicators_user(void) {
     uint32_t inactivity_time = last_input_activity_elapsed();
-    uint32_t current_time = timer_read32();
 
-    // Save original brightness on first run or when not fading
-    if (!brightness_saved && !is_fading) {
-        original_brightness = rgb_matrix_get_val();
-        brightness_saved = true;
-    }
+    // Update RGB activity management
+    rgb_activity_update(inactivity_time);
 
-    // Handle fade-out logic
-    if (inactivity_time >= RGB_FADE_START_TIMEOUT && inactivity_time < RGB_MATRIX_TIMEOUT) {
-        if (!is_fading) {
-            is_fading = true;
-            last_fade_time = current_time;
-        }
-
-        // Check if it's time for the next fade step
-        if (current_time - last_fade_time >= RGB_FADE_STEP_INTERVAL) {
-            uint8_t current_val = rgb_matrix_get_val();
-            if (current_val > RGB_FADE_MIN_BRIGHTNESS) {
-                // Decrease brightness using the matrix API - this preserves individual key colors
-                rgb_matrix_decrease_val_noeeprom();
-                last_fade_time = current_time;
-            }
-        }
-    }
     // Complete timeout - turn off completely
-    else if (inactivity_time >= RGB_MATRIX_TIMEOUT) {
+    if (inactivity_time >= RGB_MATRIX_TIMEOUT) {
         rgb_matrix_set_color_all(0, 0, 0);
         return false;
     }
