@@ -4,7 +4,6 @@
 #include "anim.h"
 #include "rgb_activity.h"
 
-
 #include "wpm_stats.h"
 #include "oled_utils.h"
 #include "elpekenin/indicators.h"
@@ -25,7 +24,6 @@ const indicator_t PROGMEM indicators[] = {
     KEYCODE_INDICATOR(MOD_HRC, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HRS, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HRA, HUE(HUE_CYAN)),
-    KEYCODE_INDICATOR(TD(TD_SUPER_BRACKET), HUE(HUE_CYAN)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE)),
@@ -35,17 +33,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // ----- STANDARD LAYERS -----
 [_BASE] = LAYOUT(
     KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
-    KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_BSLS,
-    FUNC   , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
+    KC_LBRC, KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_RBRC,
+    KC_TAB , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
     CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , TD(TD_BLUETOOTH_MUTE), KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD(TD_CMD),
-                  TD(TD_SUPER_BRACKET), NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
+                  TD(TD_SUPER_PAREN), NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , A(KC_SPC)
 ),
 
 [_NUM] = LAYOUT(
     _______, _______, _______, _______, _______, _______,                   XXXXXXX, XXXXXXX, KC_PSLS, KC_PAST, XXXXXXX, XXXXXXX,
   _______, _______, _______,G(KC_SCLN), _______, _______,                   KC_PMNS, KC_P7  , KC_P8  , KC_P9  , XXXXXXX, XXXXXXX,
     _______, _______, _______, _______, _______, _______,                   KC_PPLS, KC_P4  , KC_P5  , KC_P6  , XXXXXXX, XXXXXXX,
-    _______, _______, _______, _______, _______, _______, _______, _______, KC_PDOT, KC_P1  , KC_P2  , KC_P3  , XXXXXXX, XXXXXXX,
+    _______, _______, _______, _______, _______, _______, _______, _______, KC_PDOT, KC_P1  , KC_P2  , KC_P3  , KC_BSLS, XXXXXXX,
                                _______, _______, _______, _______, KC_P0  , KC_EQL , _______, KC_CALC
 ),
 
@@ -134,6 +132,9 @@ void keyboard_post_init_user(void) {
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     tick_widgets();
+#ifdef TRI_LAYER_ENABLE
+    return update_tri_layer_state(state, _NUM, _NAV, _FUNC);
+#endif
     return state;
 }
 
@@ -151,7 +152,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     wpm_stats_on_keyevent(record);
     encoder_led_sync_on_keyevent(record);
 
-    // Notify RGB activity module of key press
     if (record->event.pressed) {
         rgb_activity_on_keypress();
     }
@@ -191,39 +191,18 @@ bool rgb_matrix_indicators_user(void) {
     return false;
 }
 
-void td_super_bracket_finished(tap_dance_state_t *state, void *user_data) {
-    uint8_t mods = get_mods();
-
-    bool ctrl = (mods & MOD_MASK_CTRL) != 0;
-    bool shift = (mods & MOD_MASK_SHIFT) != 0;
-
-    clear_mods();
-
+void td_super_paren_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
         // single tap
-        if (ctrl && !shift) {
-            tap_code(KC_LBRC);        // [
-        } else if (shift && !ctrl) {
-            tap_code16(S(KC_LBRC));   // {
-        } else {
-            tap_code16(S(KC_9));      // (
-        }
+        tap_code16(S(KC_9));
     } else if (state->count == 2) {
         // double tap
-        if (ctrl && !shift) {
-            tap_code(KC_RBRC);        // ]
-        } else if (shift && !ctrl) {
-            tap_code16(S(KC_RBRC));   // }
-        } else {
-            tap_code16(S(KC_0));      // )
-        }
+        tap_code16(S(KC_0));
     }
-
-    set_mods(mods);
 }
 
 tap_dance_action_t tap_dance_actions[] = {
     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
     [TD_BLUETOOTH_MUTE] = ACTION_TAP_DANCE_FN(td_bluetooth_mute_finished),
-    [TD_SUPER_BRACKET] = ACTION_TAP_DANCE_FN(td_super_bracket_finished),
+    [TD_SUPER_PAREN] = ACTION_TAP_DANCE_FN(td_super_paren_finished),
 };
