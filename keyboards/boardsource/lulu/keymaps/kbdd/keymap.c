@@ -104,8 +104,8 @@ bool oled_task_user(void) {
         draw_wpm_frame();
         wpm_stats_oled_render();
     } else {
-        draw_logo();
         tick_widgets();
+        draw_logo();
     }
 
     return false;

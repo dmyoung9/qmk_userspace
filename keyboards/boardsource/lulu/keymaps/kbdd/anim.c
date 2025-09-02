@@ -428,7 +428,7 @@ void draw_wpm_frame(void) {
 
 void draw_logo(void) {
     // Draw static logo
-    draw_slice_px(&SLICE_logo, 10, 8);
+    draw_slice_px(&SLICE_logo, 106, 16);
 }
 
 // ============================================================================
