@@ -1,6 +1,7 @@
-#include QMK_KEYBOARD_H
+#include <stdbool.h>
+#include <stdint.h>
 
-#include "encoder_led.h"
+#include QMK_KEYBOARD_H
 #include "transactions.h"
 
 static bool g_encoder_clockwise                  = false;
@@ -11,15 +12,15 @@ static void encoder_led_sync_slave_handler(uint8_t in_buflen, const void *in_dat
     g_encoder_clockwise  = clockwise;
 }
 
-void encoder_led_sync_init_split_sync(void) {
+void keyboard_post_init_encoder_led(void) {
     if (!g_encoder_led_sync_split_initialized) {
         transaction_register_rpc(ENCODER_LED_SYNC, encoder_led_sync_slave_handler);
         g_encoder_led_sync_split_initialized = true;
     }
 }
 
-void encoder_led_sync_on_keyevent(keyrecord_t *record) {
-    if (!g_encoder_led_sync_split_initialized) return;
+bool process_record_encoder_led(uint16_t keycode, keyrecord_t *record) {
+    if (!g_encoder_led_sync_split_initialized) return true;
 
     if (is_keyboard_master()) {
         const bool previous = g_encoder_clockwise;
@@ -33,10 +34,12 @@ void encoder_led_sync_on_keyevent(keyrecord_t *record) {
             transaction_rpc_send(ENCODER_LED_SYNC, sizeof(bool), &g_encoder_clockwise);
         }
     }
+
+    return true;
 }
 
-void encoder_led_sync_rgb_task(void) {
-    if (!g_encoder_led_sync_split_initialized) return;
+bool rgb_matrix_indicators_encoder_led(void) {
+    if (!g_encoder_led_sync_split_initialized) return true;
 
     if (!is_keyboard_master()) {
         if (last_encoder_activity_elapsed() < 500) {
@@ -47,4 +50,6 @@ void encoder_led_sync_rgb_task(void) {
             }
         }
     }
+
+    return true;
 }

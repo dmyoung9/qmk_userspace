@@ -1,8 +1,11 @@
 // Copyright 2024 David Young (@dmyoung9)
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include <stdbool.h>
+#include <stdint.h>
+
+#include QMK_KEYBOARD_H
 
 #include "rgb_activity.h"
-#include "rgb_matrix.h"
 
 // RGB activity state tracking
 typedef enum {
@@ -26,7 +29,7 @@ static void handle_fade_in_step(void);
 static void start_fade_out(void);
 static void start_fade_in(void);
 
-void rgb_activity_init(void) {
+void keyboard_post_init_rgb_activity(void) {
     current_state = RGB_ACTIVITY_NORMAL;
     original_brightness = 0;
     original_saturation = 0;
@@ -67,10 +70,14 @@ void rgb_activity_update(uint32_t inactivity_time_ms) {
     }
 }
 
-void rgb_activity_on_keypress(void) {
+bool process_record_rgb_activity(uint16_t keycode, keyrecord_t *record) {
+    if (!record->event.pressed) return true;
+
     if (((current_state == RGB_ACTIVITY_FADING_OUT || rgb_matrix_get_val() < original_brightness) || (current_state == RGB_ACTIVITY_FADING_OUT || rgb_matrix_get_sat() < original_saturation)) && state_saved) {
         start_fade_in();
     }
+
+    return true;
 }
 
 bool rgb_activity_is_fading_in(void) {
@@ -141,4 +148,13 @@ static void handle_fade_in_step(void) {
             state_saved = false;
         }
     }
+}
+
+bool rgb_matrix_indicators_rgb_activity(void) {
+    uint32_t inactivity_time = last_input_activity_elapsed();
+
+    // Update RGB activity management
+    rgb_activity_update(inactivity_time);
+
+    return true;
 }

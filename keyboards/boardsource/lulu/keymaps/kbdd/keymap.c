@@ -2,12 +2,10 @@
 
 #include "constants.h"
 #include "anim.h"
-#include "rgb_activity.h"
 
 #include "wpm_stats.h"
 #include "oled_utils.h"
 #include "elpekenin/indicators.h"
-#include "encoder_led.h"
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
@@ -56,7 +54,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [_FUNC] = LAYOUT(
-    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    LUMINO , _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
     _______, _______, _______, _______, LSG(KC_R), _______,               LSG(KC_S), KC_F9  , KC_F10 , KC_F11 , KC_F12 , _______,
     _______, _______, _______, _______, _______, _______,                   _______, KC_F5  , KC_F6  , KC_F7  , KC_F8  , _______,
     _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
@@ -117,14 +115,6 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 #endif
 
 void keyboard_post_init_user(void) {
-    wpm_stats_init();
-    wpm_stats_init_split_sync();
-    wpm_stats_oled_init();
-
-    encoder_led_sync_init_split_sync();
-
-    rgb_activity_init();
-
     oled_clear();
 
     init_widgets();
@@ -139,24 +129,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 void matrix_scan_user(void) {
-    if (is_keyboard_master()) {
-        wpm_stats_task();
-    }
-}
-
-void housekeeping_task_user(void) {
-    wpm_stats_housekeeping_task();
-}
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    wpm_stats_on_keyevent(record);
-    encoder_led_sync_on_keyevent(record);
-
-    if (record->event.pressed) {
-        rgb_activity_on_keypress();
-    }
-
-    return true;
+    matrix_scan_wpm_stats();
 }
 
 void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
@@ -172,23 +145,6 @@ void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
         wait_ms(200);
         tap_code(KC_ESC);
     }
-}
-
-bool rgb_matrix_indicators_user(void) {
-    uint32_t inactivity_time = last_input_activity_elapsed();
-
-    // Update RGB activity management
-    rgb_activity_update(inactivity_time);
-
-    // Complete timeout - turn off completely
-    if (inactivity_time >= RGB_MATRIX_TIMEOUT) {
-        rgb_matrix_set_color_all(0, 0, 0);
-        return false;
-    }
-
-    encoder_led_sync_rgb_task();
-
-    return false;
 }
 
 void td_super_paren_finished(tap_dance_state_t *state, void *user_data) {

@@ -1,19 +1,20 @@
 #define ENABLE_RGB_MATRIX_TYPING_HEATMAP
 #define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_TYPING_HEATMAP
-#define RGB_MATRIX_TIMEOUT 15000 // number of milliseconds to wait until rgb automatically turns off
+
+#define RGB_MATRIX_SLEEP
 
 // RGB Fade-out configuration
-#define RGB_FADE_START_TIMEOUT 14000  // Start fading after 10 seconds of inactivity
-#define RGB_FADE_STEP_INTERVAL 60    // Fade step every 500ms (uses RGB_MATRIX_VAL_STEP for step size)
-#define RGB_FADE_MIN_BRIGHTNESS 0    // Minimum brightness before turning off completely
-#define RGB_FADE_MIN_SATURATION 0    // Minimum saturation before turning off completely
+// #define RGB_FADE_START_TIMEOUT 14000  // Start fading after 10 seconds of inactivity
+// #define RGB_FADE_STEP_INTERVAL 60    // Fade step every 500ms (uses RGB_MATRIX_VAL_STEP for step size)
+// #define RGB_FADE_MIN_BRIGHTNESS 0    // Minimum brightness before turning off completely
+// #define RGB_FADE_MIN_SATURATION 0    // Minimum saturation before turning off completely
 
 // RGB Fade-in configuration
-#define RGB_FADE_IN_STEP_INTERVAL 100 // Fade-in step every 100ms (faster than fade-out for responsiveness)
-#define RGB_MATRIX_SLEEP
+// #define RGB_FADE_IN_STEP_INTERVAL 100 // Fade-in step every 100ms (faster than fade-out for responsiveness)
 
 #define OLED_TIMEOUT 15000
 
+#define ENCODER_LED_INDEX 65
 #ifdef ENCODER_ENABLE
 #    undef ENCODER_A_PINS
 #    undef ENCODER_B_PINS
@@ -58,3 +59,13 @@
 #define SPLIT_TRANSACTION_IDS_USER WPM_STATS_SYNC, ENCODER_LED_SYNC
 
 #define CAPS_WORD_INVERT_ON_SHIFT
+
+// LUMINO
+#define LUMINO_HIGH_BRIGHTNESS 0.8
+#define LUMINO_LOW_BRIGHTNESS 0.1
+
+#define LUMINO_LONG_TIMEOUT 60000
+#define LUMINO_SOON_TIMEOUT 15000
+#define LUMINO_TRANSITION 500
+
+#define LUMINO_BOOT_COLOR RGB_RED

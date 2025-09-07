@@ -1,3 +1,8 @@
 {
-    "modules": ["dmyoung9/oled_utils", "dmyoung9/wpm_stats", "elpekenin/indicators"]
+    "modules": [
+        "dmyoung9/oled_utils",
+        "dmyoung9/wpm_stats",
+        "elpekenin/indicators",
+        "getreuer/lumino"
+    ]
 }
