@@ -3,7 +3,7 @@
 #include "constants.h"
 #include "anim.h"
 
-#include "wpm_stats.h"
+#include "wpm_oled.h"
 #include "oled_utils.h"
 #include "elpekenin/indicators.h"
 
@@ -127,10 +127,6 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, _NUM, _NAV, _FUNC);
 #endif
     return state;
-}
-
-void matrix_scan_user(void) {
-    matrix_scan_wpm_stats();
 }
 
 void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
