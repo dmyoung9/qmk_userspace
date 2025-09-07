@@ -2,6 +2,7 @@
     "modules": [
         "dmyoung9/oled_utils",
         "dmyoung9/wpm_stats",
+        "dmyoung9/encoder_led",
         "elpekenin/indicators",
         "getreuer/lumino"
     ]
