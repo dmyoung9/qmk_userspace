@@ -9,6 +9,10 @@
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
+    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW)),
+    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE)),
+    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE)),
+    KEYCODE_INDICATOR(QK_BOOT, HUE(HUE_RED)),
     KEYCODE_INDICATOR(NUM, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(KC_ESC, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(NAV, HUE(HUE_PURPLE)),
@@ -22,9 +26,6 @@ const indicator_t PROGMEM indicators[] = {
     KEYCODE_INDICATOR(MOD_HRC, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HRS, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HRA, HUE(HUE_CYAN)),
-    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW)),
-    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE)),
-    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE)),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -54,10 +55,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [_FUNC] = LAYOUT(
-    LUMINO , _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    QK_BOOT, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
     _______, _______, _______, _______, LSG(KC_R), _______,               LSG(KC_S), KC_F9  , KC_F10 , KC_F11 , KC_F12 , _______,
     _______, _______, _______, _______, _______, _______,                   _______, KC_F5  , KC_F6  , KC_F7  , KC_F8  , _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
+    _______, _______, _______, _______, _______, _______, LUMINO , _______, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
                                _______, _______, _______, _______, _______, _______, _______, _______
 ),
 };
