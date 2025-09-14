@@ -1,6 +1,6 @@
 {
     "modules": [
-        "dmyoung9/encoder_led",
+        "dmyoung9/encoder_ledmap",
         "dmyoung9/oled_utils",
         "dmyoung9/wpm_stats",
         "elpekenin/indicators",
