@@ -80,6 +80,8 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [3] = { ENCODER_CCW_CW(_______, _______) },
     [4] = { ENCODER_CCW_CW(_______, _______) },
 };
+
+const uint8_t encoder_leds[NUM_ENCODERS] = { 65 };
 #endif
 
 #ifdef COMBO_ENABLE
