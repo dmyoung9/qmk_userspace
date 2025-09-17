@@ -84,7 +84,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 
 const uint8_t encoder_leds[NUM_ENCODERS] = { 65 };
 const color_t PROGMEM encoder_ledmap[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [0] = { { HUE(HUE_GREEN), HUE(HUE_RED) } },
+    [0] = { { HUE(HUE_RED), HUE(HUE_GREEN) } },
     [1] = { { HUE(HUE_YELLOW), HUE(HUE_YELLOW) } },
     [2] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
     [3] = { { HUE(HUE_ORANGE), HUE(HUE_ORANGE) } },
