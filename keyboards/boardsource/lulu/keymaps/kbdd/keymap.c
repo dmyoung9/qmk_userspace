@@ -5,6 +5,7 @@
 
 #include "wpm_oled.h"
 #include "oled_utils.h"
+#include "dmyoung9/encoder_ledmap.h"
 #include "elpekenin/indicators.h"
 
 const indicator_t PROGMEM indicators[] = {
@@ -82,6 +83,13 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 
 const uint8_t encoder_leds[NUM_ENCODERS] = { 65 };
+const color_t PROGMEM encoder_ledmap[][NUM_ENCODERS][NUM_DIRECTIONS] = {
+    [0] = { { HUE(HUE_GREEN), HUE(HUE_RED) } },
+    [1] = { { HUE(HUE_YELLOW), HUE(HUE_YELLOW) } },
+    [2] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
+    [3] = { { HUE(HUE_ORANGE), HUE(HUE_ORANGE) } },
+    [4] = { { HUE(HUE_CYAN), HUE(HUE_CYAN) } },
+};
 #endif
 
 #ifdef COMBO_ENABLE
