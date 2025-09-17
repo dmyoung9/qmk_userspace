@@ -38,6 +38,8 @@
 #endif
 //
 
+#define DYNAMIC_KEYMAP_LAYER_COUNT 5
+
 // ANIM
 #define ANIM_FRAME_MS 80
 

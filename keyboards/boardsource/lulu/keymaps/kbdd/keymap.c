@@ -12,6 +12,7 @@ const indicator_t PROGMEM indicators[] = {
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE)),
+    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_GAME, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(QK_BOOT, HUE(HUE_RED)),
     KEYCODE_INDICATOR(NUM, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(KC_ESC, HUE(HUE_YELLOW)),
@@ -58,7 +59,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     QK_BOOT, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
     _______, _______, _______, _______, LSG(KC_R), _______,               LSG(KC_S), KC_F9  , KC_F10 , KC_F11 , KC_F12 , _______,
     _______, _______, _______, _______, _______, _______,                   _______, KC_F5  , KC_F6  , KC_F7  , KC_F8  , _______,
-    _______, _______, _______, _______, _______, _______, LUMINO , _______, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
+    _______, _______, _______, _______, _______, _______, LUMINO , _______, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , TG(_GAME),
+                               _______, _______, _______, _______, _______, _______, _______, _______
+),
+
+[_GAME] = LAYOUT(
+    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, _______, KC_UP  , _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
                                _______, _______, _______, _______, _______, _______, _______, _______
 ),
 };
@@ -69,6 +78,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [1] = { ENCODER_CCW_CW(S(KC_TAB), KC_TAB) },
     [2] = { ENCODER_CCW_CW(KC_PGUP, KC_PGDN) },
     [3] = { ENCODER_CCW_CW(_______, _______) },
+    [4] = { ENCODER_CCW_CW(_______, _______) },
 };
 #endif
 

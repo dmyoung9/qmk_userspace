@@ -1,6 +1,6 @@
 #include QMK_KEYBOARD_H
 
-enum layers { _BASE, _NUM, _NAV, _FUNC };
+enum layers { _BASE, _NUM, _NAV, _FUNC, _GAME };
 enum { TD_CMD, TD_BLUETOOTH_MUTE, TD_SUPER_PAREN };
 
 // simple layers, no tri-layer
