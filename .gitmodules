@@ -4,3 +4,6 @@
 [submodule "modules/getreuer"]
 	path = modules/getreuer
 	url = https://www.github.com/getreuer/qmk-modules.git
+[submodule "modules/dmyoung9"]
+	path = modules/dmyoung9
+	url = git@github.com:dmyoung9/qmk_modules.git
