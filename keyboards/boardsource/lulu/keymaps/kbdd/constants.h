@@ -2,6 +2,7 @@
 
 enum layers { _BASE, _NUM, _NAV, _FUNC, _TASK };
 enum { TD_CMD, TD_BLUETOOTH_MUTE, TD_SUPER_PAREN };
+enum custom_keycodes { CUS_TSK = SAFE_RANGE };
 
 // simple layers, no tri-layer
 #define NUM MO(_NUM)

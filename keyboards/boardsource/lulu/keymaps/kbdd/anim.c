@@ -17,8 +17,6 @@
 #include "oled_utils.h"
 #include "oled_unified_anim.h"  // Modern unified animation system
 
-#define LAYER_COUNT 4
-
 // ============================================================================
 // Modern Slice Macros (using comprehensive oled_slice.h system)
 // ============================================================================

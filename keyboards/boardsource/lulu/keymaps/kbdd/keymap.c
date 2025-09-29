@@ -8,12 +8,17 @@
 #include "dmyoung9/encoder_ledmap.h"
 #include "elpekenin/indicators.h"
 
+// Task layer timeout functionality
+static bool task_layer_active = false;
+static uint32_t task_layer_timer = 0;
+#define TASK_LAYER_TIMEOUT 3000  // 3000ms timeout
+
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE)),
-    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_GAME, HUE(HUE_CYAN)),
+    LAYER_INDICATOR(_TASK, HUE(HUE_PURPLE)),
     KEYCODE_INDICATOR(QK_BOOT, HUE(HUE_RED)),
     KEYCODE_INDICATOR(NUM, HUE(HUE_YELLOW)),
     KEYCODE_INDICATOR(KC_ESC, HUE(HUE_YELLOW)),
@@ -44,7 +49,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, _______, _______, _______, _______,                   XXXXXXX, XXXXXXX, KC_PSLS, KC_PAST, XXXXXXX, XXXXXXX,
   _______, _______, _______,G(KC_SCLN), _______, _______,                   KC_PMNS, KC_P7  , KC_P8  , KC_P9  , XXXXXXX, XXXXXXX,
     _______, _______, _______, _______, _______, _______,                   KC_PPLS, KC_P4  , KC_P5  , KC_P6  , XXXXXXX, XXXXXXX,
-    _______, _______, _______, _______, _______, _______, _______, _______, KC_PDOT, KC_P1  , KC_P2  , KC_P3  , KC_BSLS, XXXXXXX,
+    _______, _______, _______, _______, _______, _______, _______, CUS_TSK, KC_PDOT, KC_P1  , KC_P2  , KC_P3  , KC_PSLS, XXXXXXX,
                                _______, _______, _______, _______, KC_P0  , KC_EQL , _______, KC_CALC
 ),
 
@@ -60,8 +65,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     QK_BOOT, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
     _______, _______, _______, _______, LSG(KC_R), _______,               LSG(KC_S), KC_F9  , KC_F10 , KC_F11 , KC_F12 , _______,
     _______, _______, _______, _______, _______, _______,                   _______, KC_F5  , KC_F6  , KC_F7  , KC_F8  , _______,
-    _______, _______, _______, _______, _______, _______, LUMINO , _______, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , TG(_GAME),
+    _______, _______, _______, _______, _______, _______, LUMINO , _______, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
                                _______, _______, _______, _______, _______, _______, _______, _______
+),
+
+[_TASK] = LAYOUT(
+    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, _______, _______, _______, KC_ESC ,  KC_TAB, _______, _______, _______, _______, _______, _______,
+                               _______, _______, _______, _______, _______, KC_ENT , _______, _______
 ),
 };
 
@@ -71,7 +84,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [1] = { ENCODER_CCW_CW(S(KC_TAB), KC_TAB) },
     [2] = { ENCODER_CCW_CW(KC_PGUP, KC_PGDN) },
     [3] = { ENCODER_CCW_CW(_______, _______) },
-    [4] = { ENCODER_CCW_CW(_______, _______) },
+    [4] = { ENCODER_CCW_CW(KC_LEFT, KC_RGHT) },
 };
 
 const uint8_t encoder_leds[NUM_ENCODERS] = { 65 };
@@ -80,7 +93,7 @@ const color_t PROGMEM encoder_ledmap[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [1] = { { HUE(HUE_YELLOW), HUE(HUE_YELLOW) } },
     [2] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
     [3] = { { HUE(HUE_ORANGE), HUE(HUE_ORANGE) } },
-    [4] = { { HUE(HUE_CYAN), HUE(HUE_CYAN) } },
+    [4] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
 };
 #endif
 
@@ -139,6 +152,44 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, _NUM, _NAV, _FUNC);
 #endif
     return state;
+}
+
+void matrix_scan_user(void) {
+    if (task_layer_active && timer_elapsed32(task_layer_timer) > TASK_LAYER_TIMEOUT) {
+        tap_code(KC_ESC);
+        layer_off(_TASK);
+        task_layer_active = false;
+    }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+
+    if (record->event.pressed) {
+        if (task_layer_active) {
+            task_layer_timer = timer_read32();
+        }
+    }
+
+    switch (keycode) {
+        case CUS_TSK:
+            if (record->event.pressed) {
+                tap_code16(G(KC_TAB));
+                layer_on(_TASK);
+                task_layer_active = true;
+                task_layer_timer = timer_read32();
+            }
+            return false;
+
+        case KC_ESC:
+        case KC_ENT:
+            if (record->event.pressed && task_layer_active) {
+                layer_off(_TASK);
+                task_layer_active = false;
+            }
+            break;
+    }
+
+    return true;
 }
 
 void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
