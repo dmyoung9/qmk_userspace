@@ -8,6 +8,8 @@
 #include "dmyoung9/encoder_ledmap.h"
 #include "elpekenin/indicators.h"
 
+#define CAPS_WORD_LED_INDEX 24
+
 // Task layer timeout functionality
 static bool task_layer_active = false;
 static uint32_t task_layer_timer = 0;
@@ -215,6 +217,16 @@ void td_super_paren_finished(tap_dance_state_t *state, void *user_data) {
         // double tap
         tap_code16(S(KC_0));
     }
+}
+
+bool rgb_matrix_indicators_user(void) {
+    if (is_caps_word_on()) {
+        rgb_matrix_set_color(CAPS_WORD_LED_INDEX, 0, 0xff, 0);
+    } else {
+        rgb_matrix_set_color(CAPS_WORD_LED_INDEX, 0, 0, 0);
+    }
+
+    return true;
 }
 
 tap_dance_action_t tap_dance_actions[] = {
