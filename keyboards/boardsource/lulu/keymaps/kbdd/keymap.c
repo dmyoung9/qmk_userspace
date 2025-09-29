@@ -200,11 +200,11 @@ void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
         tap_code(KC_MUTE);
     } else if (state->count == 2) {
         tap_code16(G(KC_A));
-        wait_ms(200);
+        wait_ms(500);
         tap_code(KC_RIGHT);
-        wait_ms(200);
+        wait_ms(500);
         tap_code(KC_SPC);
-        wait_ms(200);
+        wait_ms(500);
         tap_code(KC_ESC);
     }
 }
