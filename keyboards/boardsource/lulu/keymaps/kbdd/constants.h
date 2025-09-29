@@ -9,14 +9,6 @@ enum custom_keycodes { CUS_TSK = SAFE_RANGE };
 #define NAV MO(_NAV)
 #define FUNC MO(_FUNC)
 
-// mouse macros to keep layout consistent
-#define KC_MB1 KC_MS_BTN1
-#define KC_MB2 KC_MS_BTN2
-#define KC_MUP KC_MS_UP
-#define KC_MDWN KC_MS_DOWN
-#define KC_MLFT KC_MS_LEFT
-#define KC_MRGT KC_MS_RIGHT
-
 // left-hand GACS
 #define MOD_HLG MT(MOD_LGUI, KC_A)
 #define MOD_HLA MT(MOD_LALT, KC_S)
@@ -29,12 +21,20 @@ enum custom_keycodes { CUS_TSK = SAFE_RANGE };
 #define MOD_HRA MT(MOD_RALT, KC_L)
 #define MOD_HRG MT(MOD_RGUI, KC_SCLN)
 
-enum combos {
-    COMBO_LPAREN,
-    COMBO_RPAREN,
-    COMBO_LBRACK,
-    COMBO_RBRACK,
-    COMBO_LBRACE,
-    COMBO_RBRACE,
-};
+// tap-dances
+#define TD_BTTG TD(TD_BLUETOOTH_MUTE)
+#define TD_FUNC TD(TD_CMD)
 
+// shortcuts
+#define CUS_GPT A(KC_SPC)
+
+#define G_EMOJI G(KC_SCLN)
+#define G_UP G(KC_UP)
+#define G_DOWN G(KC_DOWN)
+#define G_LEFT G(KC_LEFT)
+#define G_RIGHT G(KC_RIGHT)
+#define G_SWDSK LSG(KC_LEFT)
+#define G_START G(KC_S)
+#define G_DESK G(KC_D)
+#define G_REC LSG(KC_R)
+#define G_SNIP LSG(KC_S)
