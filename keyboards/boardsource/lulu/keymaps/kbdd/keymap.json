@@ -1,8 +1,9 @@
 {
     "modules": [
-        "dmyoung9/encoder_ledmap",
         "dmyoung9/oled_utils",
         "dmyoung9/wpm_stats",
+        "elpekenin/colors",
+        "dmyoung9/encoder_ledmap",
         "elpekenin/indicators",
         "getreuer/lumino"
     ]

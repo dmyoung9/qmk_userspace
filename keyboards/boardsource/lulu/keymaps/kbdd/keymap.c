@@ -7,6 +7,7 @@
 #include "oled_utils.h"
 #include "dmyoung9/encoder_ledmap.h"
 #include "elpekenin/indicators.h"
+#include "elpekenin/colors.h"
 
 #define CAPS_WORD_LED_INDEX 24
 
@@ -220,15 +221,18 @@ void td_super_paren_finished(tap_dance_state_t *state, void *user_data) {
     }
 }
 
+#ifdef CAPS_WORD_ENABLE
 bool rgb_matrix_indicators_user(void) {
     if (is_caps_word_on()) {
-        rgb_matrix_set_color(CAPS_WORD_LED_INDEX, 0, 0xff, 0);
-    } else {
-        rgb_matrix_set_color(CAPS_WORD_LED_INDEX, 0, 0, 0);
+        color_t orange = HUE(HUE_ORANGE);
+        rgb_t caps_word_rgb;
+        get_rgb(orange, &caps_word_rgb);
+        rgb_matrix_set_color(CAPS_WORD_LED_INDEX, caps_word_rgb.r, caps_word_rgb.g, caps_word_rgb.b);
     }
 
     return true;
 }
+#endif
 
 tap_dance_action_t tap_dance_actions[] = {
     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
