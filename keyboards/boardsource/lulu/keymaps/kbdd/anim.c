@@ -176,7 +176,7 @@ static unified_anim_t caps_anim, super_anim, alt_anim, shift_anim, ctrl_anim;
 
 // State management
 static uint8_t current_layer = 0;
-static bool layer_is_active[LAYER_COUNT] = {false, false, false, false};
+static bool layer_is_active[LAYER_COUNT] = {false, false, false, false, false};
 
 // Layer transition state machine (simplified with unified system)
 typedef enum {
