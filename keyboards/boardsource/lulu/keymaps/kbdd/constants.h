@@ -21,6 +21,18 @@ enum custom_keycodes { CUS_TSK = SAFE_RANGE };
 #define MOD_HRA MT(MOD_RALT, KC_L)
 #define MOD_HRG MT(MOD_RGUI, KC_SCLN)
 
+// combos
+#ifdef COMBO_ENABLE
+enum combos {
+    COMBO_LPAREN,
+    COMBO_RPAREN,
+    COMBO_LBRACK,
+    COMBO_RBRACK,
+    COMBO_LBRACE,
+    COMBO_RBRACE,
+};
+#endif
+
 // tap-dances
 #define TD_BTTG TD(TD_BLUETOOTH_MUTE)
 #define TD_FUNC TD(TD_CMD)
