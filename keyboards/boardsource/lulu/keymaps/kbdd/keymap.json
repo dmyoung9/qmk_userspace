@@ -3,8 +3,8 @@
         "dmyoung9/oled_utils",
         "dmyoung9/wpm_stats",
         "elpekenin/colors",
-        "dmyoung9/encoder_ledmap",
         "elpekenin/indicators",
+        "dmyoung9/encoder_ledmap",
         "getreuer/lumino"
     ]
 }

@@ -39,6 +39,7 @@ enum combos {
 
 // shortcuts
 #define CUS_GPT A(KC_SPC)
+#define OSM_SFT OSM(MOD_LSFT)
 
 #define G_EMOJI G(KC_SCLN)
 #define G_UP G(KC_UP)
