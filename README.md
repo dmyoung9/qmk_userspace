@@ -8,6 +8,7 @@
 * Case: [Lily58 DIY Keyboard Kit - 60% Split](https://boardsource.xyz/products/lily58) from Boardsource
 * Microcontrollers: [Blok RP2040 Controller](https://boardsource.xyz/products/blok-rp2040-controller-for-the-keyboards) from Boardsource
 * OLEDs: [OLED-S Screen](https://boardsource.xyz/products/oled-s-screen) (SSD1306 128x32) from Boardsource
+* Rotary Encoder: CYT1100 ([Buy on Amazon](https://www.amazon.com/dp/B07DM2YMT4))
 * Tenting Feet ([Buy on Amazon](https://www.amazon.com/dp/B0BLV5HVSH))
 
 ## Switches and Keycaps
@@ -22,14 +23,14 @@
 ### Key Features
 * [One-shot Shift](https://docs.qmk.fm/one_shot_keys#one-shot-keys)
 * [Caps Word](https://docs.qmk.fm/features/caps_word#caps-word)
-* RGB Lighting
+* [RGB Matrix](https://docs.qmk.fm/features/rgb_matrix#rgb-matrix-lighting) Lighting
   * Encoder spin indicators using [`dmyoung9/encoder_ledmap`](https://github.com/dmyoung9/qmk_modules)
   * Special keys highlighted using [`elpkenenin/indicators`](https://github.com/elpekenin/qmk_modules)
   * Idle fadeout and brightness control using [`getreuer/lumino`](https://github.com/getreuer/qmk-modules)
   * Typing heatmap effect
 * "Task Layer"
-  * Launches Task View (Win + Tab) with intuitive encoder navigation
-  * Automatically exits on selection, cancel, or timeout
+  * Launches Task View (`Win + Tab`) with intuitive encoder navigation
+  * Automatically exits on selection (`Enter`), cancel (`Esc`), or timeout (`3s`)
 * Custom [LCARS](https://en.wikipedia.org/wiki/LCARS)-themed OLED design
   * Layer and modifier transitions on master
   * WPM visualization (current and moving average) on slave (using [`dmyoung9/wpm_stats`](https://github.com/dmyoung9/qmk_modules))
