@@ -1,11 +1,14 @@
 # KBDD-57
 
+![pic](pic.jpg "pic")
+
 ## Design
 * Based on the [Lily58 Pro by kata0510](https://github.com/kata0510/Lily58)
 * Keyboard PCB: [Lily58 DIY PDB - Solderable Split Keyboard PCB](https://boardsource.xyz/products/lily58-solderable-pcb) from Boardsource
 * Case: [Lily58 DIY Keyboard Kit - 60% Split](https://boardsource.xyz/products/lily58) from Boardsource
 * Microcontrollers: [Blok RP2040 Controller](https://boardsource.xyz/products/blok-rp2040-controller-for-the-keyboards) from Boardsource
 * OLEDs: [OLED-S Screen](https://boardsource.xyz/products/oled-s-screen) (SSD1306 128x32) from Boardsource
+* Tenting Feet ([Buy on Amazon](https://www.amazon.com/dp/B0BLV5HVSH))
 
 ## Switches and Keycaps
 * [Gateron Milky Yellow Pro V2](https://www.gateron.co/products/gateron-ks-3x1-full-milky-switch-set?variant=40069272141913) ([Buy on Amazon](https://www.amazon.com/dp/B0C2CWR4HH))
