@@ -21,6 +21,7 @@
 ![keymap](kbdd.png "keymap")
 
 ### Key Features
+* [Home Row Mods](https://precondition.github.io/home-row-mods)
 * [One-shot Shift](https://docs.qmk.fm/one_shot_keys#one-shot-keys)
 * [Caps Word](https://docs.qmk.fm/features/caps_word#caps-word)
 * [RGB Matrix](https://docs.qmk.fm/features/rgb_matrix#rgb-matrix-lighting) Lighting
