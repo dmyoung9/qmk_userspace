@@ -1,3 +1,38 @@
+# KBDD-57
+
+## Design
+* Based on the [Lily58 Pro by kata0510](https://github.com/kata0510/Lily58)
+* Keyboard PCB: [Lily58 DIY PDB - Solderable Split Keyboard PCB](https://boardsource.xyz/products/lily58-solderable-pcb) from Boardsource
+* Case: [Lily58 DIY Keyboard Kit - 60% Split](https://boardsource.xyz/products/lily58) from Boardsource
+* Microcontrollers: [Blok RP2040 Controller](https://boardsource.xyz/products/blok-rp2040-controller-for-the-keyboards) from Boardsource
+* OLEDs: [OLED-S Screen](https://boardsource.xyz/products/oled-s-screen) (SSD1306 128x32) from Boardsource
+
+## Switches and Keycaps
+* [Gateron Milky Yellow Pro V2](https://www.gateron.co/products/gateron-ks-3x1-full-milky-switch-set?variant=40069272141913) ([Buy on Amazon](https://www.amazon.com/dp/B0C2CWR4HH))
+* [Drop MT3 White-on-Black Keycap Set (Ortho Kit)](https://drop.com/buy/drop-mt3-white-on-black-keycap-set)
+* [Drop + Mito Pulse MT3 Keycap Set (Extras Kit)](https://drop.com/buy/drop-mito-mt3-pulse-keycap-set)
+* [Drop + Matt3o /dev/tty MT3 Custom Keycap Set R3 (RGB)](https://drop.com/buy/drop-matt3o-devtty-custom-keycap-set)
+
+## Keymap
+![keymap](kbdd.png "keymap")
+
+### Key Features
+* [One-shot Shift](https://docs.qmk.fm/one_shot_keys#one-shot-keys)
+* [Caps Word](https://docs.qmk.fm/features/caps_word#caps-word)
+* RGB Lighting
+  * Encoder spin indicators using [`dmyoung9/encoder_ledmap`](https://github.com/dmyoung9/qmk_modules)
+  * Special keys highlighted using [`elpkenenin/indicators`](https://github.com/elpekenin/qmk_modules)
+  * Idle fadeout and brightness control using [`getreuer/lumino`](https://github.com/getreuer/qmk-modules)
+  * Typing heatmap effect
+* "Task Layer"
+  * Launches Task View (Win + Tab) with intuitive encoder navigation
+  * Automatically exits on selection, cancel, or timeout
+* Custom [LCARS](https://en.wikipedia.org/wiki/LCARS)-themed OLED design
+  * Layer and modifier transitions on master
+  * WPM visualization (current and moving average) on slave (using [`dmyoung9/wpm_stats`](https://github.com/dmyoung9/qmk_modules))
+
+---
+
 # QMK Userspace
 
 This is a template repository which allows for an external set of QMK keymaps to be defined and compiled. This is useful for users who want to maintain their own keymaps without having to fork the main QMK repository.
