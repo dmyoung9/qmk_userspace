@@ -1,9 +1,0 @@
-// WPM Bar Graph Configuration for 128x32 SSD1306
-#define WPM_BAR_X 1
-#define WPM_BAR_Y 1
-#define WPM_BAR_WIDTH 124
-#define WPM_BAR_HEIGHT 28
-
-#define SPLIT_WPM_ENABLE
-
-#define SPLIT_TRANSACTION_IDS_USER WPM_STATS_SYNC
