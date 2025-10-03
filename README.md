@@ -29,6 +29,8 @@
   * Special keys highlighted using [`elpkenenin/indicators`](https://github.com/elpekenin/qmk_modules)
   * Idle fadeout and brightness control using [`getreuer/lumino`](https://github.com/getreuer/qmk-modules)
   * Typing heatmap effect
+* Bluetooth Toggle
+  * Since there is not a native keyboard shortcut on Windows for toggling Bluetooth on and off, this "macro" seamlessly opens the connections menu, toggles Bluetooth, and then closes the menu, in a single keystroke
 * "Task Layer"
   * Launches Task View (`Win + Tab`) with intuitive encoder navigation
   * Automatically exits on selection (`Enter`), cancel (`Esc`), or timeout (`3s`)
