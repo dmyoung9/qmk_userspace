@@ -1,3 +1,6 @@
+#include <stdbool.h>
+#include <stdint.h>
+
 #include QMK_KEYBOARD_H
 
 #include "constants.h"
@@ -10,11 +13,14 @@
 #include "elpekenin/colors.h"
 
 #define CAPS_WORD_LED_INDEX 24
+#define ONESHOT_SHIFT_LED_INDEX 47
 
 // Task layer timeout functionality
 static bool task_layer_active = false;
 static uint32_t task_layer_timer = 0;
 #define TASK_LAYER_TIMEOUT 3000  // 3000ms timeout
+
+static bool oneshot_shift_active = false;
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
@@ -28,7 +34,7 @@ const indicator_t PROGMEM indicators[] = {
     KEYCODE_INDICATOR(NAV, HUE(HUE_PURPLE)),
     KEYCODE_INDICATOR(FUNC, HUE(HUE_ORANGE)),
     KEYCODE_INDICATOR(KC_BSPC, HUE(HUE_RED)),
-    KEYCODE_INDICATOR(OSM_SFT, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(OS_LSFT, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(KC_W, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HLG, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HLA, HUE(HUE_CYAN)),
@@ -44,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // ----- STANDARD LAYERS -----
 [_BASE] = LAYOUT(
     KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
-    KC_BSLS, KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , OSM_SFT,
+    KC_BSLS, KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , OS_LSFT,
     KC_TAB , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
     CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , TD_BTTG, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD_FUNC,
                                _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , CUS_GPT
@@ -207,6 +213,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+void oneshot_mods_changed_user(uint8_t mods) {
+    oneshot_shift_active = mods & MOD_MASK_SHIFT;
+}
+
 void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
         // single tap
@@ -232,18 +242,25 @@ void td_super_paren_finished(tap_dance_state_t *state, void *user_data) {
     }
 }
 
-#ifdef CAPS_WORD_ENABLE
 bool rgb_matrix_indicators_user(void) {
+#ifdef CAPS_WORD_ENABLE
     if (is_caps_word_on()) {
         color_t orange = HUE(HUE_ORANGE);
         rgb_t caps_word_rgb;
         get_rgb(orange, &caps_word_rgb);
         rgb_matrix_set_color(CAPS_WORD_LED_INDEX, caps_word_rgb.r, caps_word_rgb.g, caps_word_rgb.b);
     }
+#endif
+
+    if (oneshot_shift_active) {
+        color_t orange = HUE(HUE_ORANGE);
+        rgb_t oneshot_shift_rgb;
+        get_rgb(orange, &oneshot_shift_rgb);
+        rgb_matrix_set_color(ONESHOT_SHIFT_LED_INDEX, oneshot_shift_rgb.r, oneshot_shift_rgb.g, oneshot_shift_rgb.b);
+    }
 
     return true;
 }
-#endif
 
 tap_dance_action_t tap_dance_actions[] = {
     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),

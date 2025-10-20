@@ -39,7 +39,6 @@ enum combos {
 
 // shortcuts
 #define CUS_GPT A(KC_SPC)
-#define OSM_SFT OSM(MOD_LSFT)
 
 #define G_MIC LCS(KC_M)
 #define G_CAM LCS(KC_O)
