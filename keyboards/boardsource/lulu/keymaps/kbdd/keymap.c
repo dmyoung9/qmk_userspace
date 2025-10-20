@@ -63,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, G_UP   , KC_MYCM, _______, G_SWDSK,                   KC_HOME, KC_PGDN, KC_PGUP, KC_END , _______, _______,
     _______, G_LEFT , G_DOWN , G_RIGHT, _______, G_START,                   KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
     _______, _______, _______, _______, _______, G_DESK , _______, _______, _______, _______, _______, _______, _______, _______,
-                               _______, _______, _______, _______, _______, _______, _______, _______
+                               CUS_SNT, _______, _______, _______, _______, _______, _______, _______
 ),
 
 [_FUNC] = LAYOUT(
@@ -168,7 +168,6 @@ void matrix_scan_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-
     if (record->event.pressed) {
         if (task_layer_active) {
             task_layer_timer = timer_read32();
@@ -182,6 +181,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 layer_on(_TASK);
                 task_layer_active = true;
                 task_layer_timer = timer_read32();
+            }
+            return false;
+        case CUS_SNT:
+            if (record->event.pressed) {
+                tap_code16(C(KC_C));
+                wait_ms(100);
+                tap_code16(C(KC_T));
+                wait_ms(100);
+                tap_code16(C(KC_V));
+                wait_ms(100);
+                tap_code(KC_ENT);
             }
             return false;
 
