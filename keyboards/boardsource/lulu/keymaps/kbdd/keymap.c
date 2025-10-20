@@ -238,5 +238,4 @@ bool rgb_matrix_indicators_user(void) {
 tap_dance_action_t tap_dance_actions[] = {
     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
     [TD_BLUETOOTH_MUTE] = ACTION_TAP_DANCE_FN(td_bluetooth_mute_finished),
-    [TD_SUPER_PAREN] = ACTION_TAP_DANCE_FN(td_super_paren_finished),
 };
