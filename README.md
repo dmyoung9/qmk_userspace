@@ -24,6 +24,7 @@
 * [Home Row Mods](https://precondition.github.io/home-row-mods)
 * [One-shot Shift](https://docs.qmk.fm/one_shot_keys#one-shot-keys)
 * [Caps Word](https://docs.qmk.fm/features/caps_word#caps-word)
+  * Also using `CAPS_WORD_INVERT_ON_SHIFT`, so `Shift` types the _un_-shifted character
 * [RGB Matrix](https://docs.qmk.fm/features/rgb_matrix#rgb-matrix-lighting) Lighting
   * Encoder spin indicators using [`dmyoung9/encoder_ledmap`](https://github.com/dmyoung9/qmk_modules)
   * Special keys highlighted using [`elpkenenin/indicators`](https://github.com/elpekenin/qmk_modules)
@@ -34,6 +35,11 @@
 * "Task Layer"
   * Launches Task View (`Win + Tab`) with intuitive encoder navigation
   * Automatically exits on selection (`Enter`), cancel (`Esc`), or timeout (`3s`)
+* "Slug Lock"
+  * Simply types `-` as `_`, for one word, broken at spaces (`for_typing_stuff_like_this`)
+  * If combined with Caps Word, reverses the normal underscore logic, replacing `_` with `-` (`FOR-TYPING-STUFF-LIKE-THIS`)
+* Search in New Tab
+  * Opens a new tab and searches for the selected text
 * Custom [LCARS](https://en.wikipedia.org/wiki/LCARS)-themed OLED design
   * Layer and modifier transitions on master
   * WPM visualization (current and moving average) on slave (using [`dmyoung9/wpm_stats`](https://github.com/dmyoung9/qmk_modules))
