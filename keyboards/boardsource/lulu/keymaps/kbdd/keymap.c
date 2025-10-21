@@ -13,6 +13,7 @@
 #include "elpekenin/colors.h"
 
 #define CAPS_WORD_LED_INDEX 24
+#define SLUG_LOCK_LED_INDEX 34
 #define ONESHOT_SHIFT_LED_INDEX 47
 
 // Task layer timeout functionality
@@ -21,6 +22,12 @@ static uint32_t task_layer_timer = 0;
 #define TASK_LAYER_TIMEOUT 3000  // 3000ms timeout
 
 static bool oneshot_shift_active = false;
+
+// Slug lock timeout functionality
+static bool slug_lock_active = false;
+static uint32_t slug_lock_timer = 0;
+#define SLUG_LOCK_TIMEOUT 3000  // 3000ms timeout
+
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
@@ -53,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_BSLS, KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , OS_LSFT,
     KC_TAB , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
     CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , TD_BTTG, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD_FUNC,
-                               _______, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , CUS_GPT
+                               CUS_SLK, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , CUS_GPT
 ),
 
 [_NUM] = LAYOUT(
@@ -171,12 +178,20 @@ void matrix_scan_user(void) {
         layer_off(_TASK);
         task_layer_active = false;
     }
+
+    if (slug_lock_active && timer_elapsed32(slug_lock_timer) > SLUG_LOCK_TIMEOUT) {
+        slug_lock_active = false;
+    }
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         if (task_layer_active) {
             task_layer_timer = timer_read32();
+        }
+
+        if (slug_lock_active) {
+            slug_lock_timer = timer_read32();
         }
     }
 
@@ -187,6 +202,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 layer_on(_TASK);
                 task_layer_active = true;
                 task_layer_timer = timer_read32();
+            }
+            return false;
+        case CUS_SLK:
+            if (record->event.pressed) {
+                if (slug_lock_active) {
+                    slug_lock_active = false;
+                } else {
+                    slug_lock_active = true;
+                    slug_lock_timer = timer_read32();
+                }
             }
             return false;
         case CUS_SNT:
@@ -206,6 +231,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed && task_layer_active) {
                 layer_off(_TASK);
                 task_layer_active = false;
+            }
+            break;
+        case KC_MINS:
+            if (record->event.pressed && slug_lock_active) {
+                if (is_caps_word_on()) {
+                    tap_code(KC_MINS);
+                } else {
+                    tap_code16(S(KC_MINS));
+                }
+                return false;
+            }
+            break;
+        case KC_SPC:
+            if (record->event.pressed && slug_lock_active) {
+                slug_lock_active = false;
             }
             break;
     }
@@ -257,6 +297,13 @@ bool rgb_matrix_indicators_user(void) {
         rgb_t oneshot_shift_rgb;
         get_rgb(orange, &oneshot_shift_rgb);
         rgb_matrix_set_color(ONESHOT_SHIFT_LED_INDEX, oneshot_shift_rgb.r, oneshot_shift_rgb.g, oneshot_shift_rgb.b);
+    }
+
+    if (slug_lock_active) {
+        color_t orange = HUE(HUE_ORANGE);
+        rgb_t slug_lock_rgb;
+        get_rgb(orange, &slug_lock_rgb);
+        rgb_matrix_set_color(SLUG_LOCK_LED_INDEX, slug_lock_rgb.r, slug_lock_rgb.g, slug_lock_rgb.b);
     }
 
     return true;
