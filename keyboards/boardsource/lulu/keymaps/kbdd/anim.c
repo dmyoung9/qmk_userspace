@@ -238,7 +238,7 @@ void init_widgets(void) {
         current_layer = 0;
     }
 
-    for (uint8_t i = 0; i < LAYER_COUNT; i++) {
+    for (uint8_t i = 0; i < (sizeof(layer_anims) / sizeof(layer_anims[0])); i++) {
         bool is_active = (i == current_layer);
 
         // For toggle animations: initial_state = 1 means "on" (active layer shows last frame)

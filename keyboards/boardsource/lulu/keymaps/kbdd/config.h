@@ -39,7 +39,7 @@
 #endif
 //
 
-#define DYNAMIC_KEYMAP_LAYER_COUNT 5
+#define DYNAMIC_KEYMAP_LAYER_COUNT 6
 
 // ANIM
 #define ANIM_FRAME_MS 80

@@ -6,7 +6,7 @@
 #include "oled_unified_anim.h"  // Modern unified animation system
 #include "oled_declarative.h"
 
-#define LAYER_COUNT 5
+#define LAYER_COUNT 6
 
 // Modern unified animation system
 void init_widgets(void);

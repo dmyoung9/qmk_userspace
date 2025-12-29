@@ -51,6 +51,7 @@ const indicator_t PROGMEM indicators[] = {
     KEYCODE_INDICATOR(MOD_HRS, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HRA, HUE(HUE_CYAN)),
     LAYER_INDICATOR(_TASK, HUE(HUE_PURPLE)),
+    LAYER_INDICATOR(_GAME, HUE(HUE_GREEN)),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -83,7 +84,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     QK_BOOT, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
     _______, _______, _______, _______, G_REC  , _______,                   G_SNIP , KC_F9  , KC_F10 , KC_F11 , KC_F12 , _______,
     _______, _______, _______, _______, _______, _______,                   _______, KC_F5  , KC_F6  , KC_F7  , KC_F8  , _______,
-    _______, _______, _______, _______, _______, _______, LUMINO , _______, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
+    _______, _______, _______, _______, _______, _______, LUMINO ,TG(_GAME),_______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
                                _______, _______, _______, _______, _______, _______, _______, _______
 ),
 
@@ -94,6 +95,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, _______, _______, _______, _______, KC_ESC ,  KC_TAB, _______, _______, _______, _______, _______, _______,
                                _______, _______, _______, _______, _______, KC_ENT , _______, _______
 ),
+
+[_GAME] = LAYOUT(
+    TD_GAME , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
+    KC_TAB  , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_RSFT,
+    KC_LSFT , KC_A   , KC_S   , KC_D   , KC_F   , KC_G   ,                   KC_H   , KC_J   , KC_K   , KC_L   , KC_SCLN, KC_QUOT,
+    KC_LCTL , KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, KC_RCTL,
+                                KC_LALT, KC_LGUI, KC_DEL , KC_SPC , KC_BSPC, KC_ENT , KC_RGUI, KC_F11
+),
 };
 
 #ifdef ENCODER_MAP_ENABLE
@@ -103,6 +112,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [2] = { ENCODER_CCW_CW(KC_UP, KC_DOWN) },
     [3] = { ENCODER_CCW_CW(_______, _______) },
     [4] = { ENCODER_CCW_CW(KC_LEFT, KC_RGHT) },
+    [5] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
 };
 
 const uint8_t encoder_leds[NUM_ENCODERS] = { 65 };
@@ -112,6 +122,7 @@ const color_t PROGMEM encoder_ledmap[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [2] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
     [3] = { { TRNS_COLOR, TRNS_COLOR } },
     [4] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
+    [5] = { { HUE(HUE_RED), HUE(HUE_GREEN) } },
 };
 #endif
 
@@ -312,4 +323,5 @@ bool rgb_matrix_indicators_user(void) {
 tap_dance_action_t tap_dance_actions[] = {
     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
     [TD_BLUETOOTH_MUTE] = ACTION_TAP_DANCE_FN(td_bluetooth_mute_finished),
+    [TD_DISABLE_GAME] = ACTION_TAP_DANCE_LAYER_TOGGLE(KC_GRAVE, _GAME),
 };
