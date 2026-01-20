@@ -205,6 +205,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
+        case OS_LSFT:
+            if (record->event.pressed && oneshot_shift_active) {
+                clear_oneshot_mods();
+                return false;
+            }
+            break;
         case CUS_TSK:
             if (record->event.pressed) {
                 tap_code16(G(KC_TAB));
