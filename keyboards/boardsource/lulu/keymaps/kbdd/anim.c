@@ -230,6 +230,17 @@ static bool is_ctrl_active(void) {
 
 static const slice_t SLICE_logo = SLICE22x16(logo);
 
+static const slice_t SLICE_digit_0 = SLICE8x16(digit_0);
+static const slice_t SLICE_digit_1 = SLICE8x16(digit_1);
+static const slice_t SLICE_digit_2 = SLICE8x16(digit_2);
+static const slice_t SLICE_digit_3 = SLICE8x16(digit_3);
+static const slice_t SLICE_digit_4 = SLICE8x16(digit_4);
+static const slice_t SLICE_digit_5 = SLICE8x16(digit_5);
+static const slice_t SLICE_digit_6 = SLICE8x16(digit_6);
+static const slice_t SLICE_digit_7 = SLICE8x16(digit_7);
+static const slice_t SLICE_digit_8 = SLICE8x16(digit_8);
+static const slice_t SLICE_digit_9 = SLICE8x16(digit_9);
+
 // ============================================================================
 // Modern Unified Animation Management
 // ============================================================================

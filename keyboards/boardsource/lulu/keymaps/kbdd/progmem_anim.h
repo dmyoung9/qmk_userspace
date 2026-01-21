@@ -24,3 +24,5 @@ extern const uint8_t PROGMEM ctrl_0[], ctrl_1[], ctrl_2[], ctrl_3[];  // 21x9
 
 extern const uint8_t PROGMEM wpm_frame_0[], wpm_frame_1[], wpm_frame_2[], wpm_frame_3[], wpm_frame_4[], wpm_frame_5[], wpm_frame_6[], wpm_frame_7[], wpm_frame_8[];
 extern const uint8_t PROGMEM wpm_0[], wpm_1[], wpm_2[];
+
+extern const uint8_t PROGMEM digit_0[], digit_1[], digit_2[], digit_3[], digit_4[], digit_5[], digit_6[], digit_7[], digit_8[], digit_9[];
