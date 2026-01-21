@@ -67,6 +67,11 @@ DEFINE_SLICE_SEQ(layer_4,
     SLICE72x12(layer_4_3),
 );
 
+DEFINE_SLICE_SEQ(layer_5,
+    SLICE72x12(layer_5_0), SLICE72x12(layer_5_1), SLICE72x12(layer_5_2),
+    SLICE72x12(layer_5_3), SLICE72x12(layer_5_4), SLICE72x12(layer_5_5),
+);
+
 // Layer frame animation
 DEFINE_SLICE_SEQ(layer_frame,
     SLICE86x16(layer_frame_0), SLICE86x16(layer_frame_1), SLICE86x16(layer_frame_2),
@@ -132,6 +137,8 @@ static const unified_anim_config_t layer_3_config =
     UNIFIED_TOGGLE_CONFIG(&layer_3, 56, 0, BLEND_ADDITIVE);
 static const unified_anim_config_t layer_4_config =
     UNIFIED_TOGGLE_CONFIG(&layer_4, 56, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t layer_5_config =
+    UNIFIED_TOGGLE_CONFIG(&layer_5, 56, 0, BLEND_ADDITIVE);
 
 // Layer frame animation (bootrev pattern - boot then reverse-out-back on trigger)
 static const unified_anim_config_t layer_frame_config =
@@ -162,9 +169,9 @@ static const unified_anim_config_t ctrl_config =
     UNIFIED_TOGGLE_CONFIG(&ctrl_seq, 77, 22, BLEND_OPAQUE);
 
 // Runtime instances
-static unified_anim_t layer_0_anim, layer_1_anim, layer_2_anim, layer_3_anim, layer_4_anim;
-static unified_anim_t *layer_anims[] = {&layer_0_anim, &layer_1_anim, &layer_2_anim, &layer_3_anim, &layer_4_anim};
-static const unified_anim_config_t *layer_configs[] = {&layer_0_config, &layer_1_config, &layer_2_config, &layer_3_config, &layer_4_config};
+static unified_anim_t layer_0_anim, layer_1_anim, layer_2_anim, layer_3_anim, layer_4_anim, layer_5_anim;
+static unified_anim_t *layer_anims[] = {&layer_0_anim, &layer_1_anim, &layer_2_anim, &layer_3_anim, &layer_4_anim, &layer_5_anim};
+static const unified_anim_config_t *layer_configs[] = {&layer_0_config, &layer_1_config, &layer_2_config, &layer_3_config, &layer_4_config, &layer_5_config};
 
 // Frame and boot animations
 static unified_anim_t layer_frame_anim;
@@ -176,7 +183,7 @@ static unified_anim_t caps_anim, super_anim, alt_anim, shift_anim, ctrl_anim;
 
 // State management
 static uint8_t current_layer = 0;
-static bool layer_is_active[LAYER_COUNT] = {false, false, false, false, false};
+static bool layer_is_active[LAYER_COUNT] = {false, false, false, false, false, false};
 
 // Layer transition state machine (simplified with unified system)
 typedef enum {
