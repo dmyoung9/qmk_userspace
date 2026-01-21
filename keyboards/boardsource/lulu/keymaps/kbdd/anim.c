@@ -16,6 +16,7 @@
 #include "progmem_anim.h"
 #include "oled_utils.h"
 #include "oled_unified_anim.h"  // Modern unified animation system
+#include "wpm_stats.h"
 
 // ============================================================================
 // Modern Slice Macros (using comprehensive oled_slice.h system)
@@ -96,10 +97,6 @@ DEFINE_SLICE_SEQ(wpm_frame_seq,
     SLICE128x32(wpm_frame_6), SLICE128x32(wpm_frame_7), SLICE128x32(wpm_frame_8)
 );
 
-DEFINE_SLICE_SEQ(wpm_seq,
-    SLICE32x16(wpm_0), SLICE32x16(wpm_1), SLICE32x16(wpm_2)
-);
-
 // Modifier animation sequences (NOW RE-ENABLED with unified system!)
 DEFINE_SLICE_SEQ(caps_seq,
     SLICE21x9(caps_0), SLICE21x9(caps_1), SLICE21x9(caps_2), SLICE21x9(caps_3)
@@ -153,8 +150,6 @@ static const unified_anim_config_t mods_frame_config =
 // WPM animations (slave screen)
 static const unified_anim_config_t wpm_frame_config =
     UNIFIED_ONESHOT_CONFIG(&wpm_frame_seq, 0, 0, STEADY_LAST, true);
-static const unified_anim_config_t wpm_config =
-    UNIFIED_ONESHOT_CONFIG(&wpm_seq, 83, 8, STEADY_LAST, true);
 
 // Modifier animations (toggle pattern - smooth on/off transitions)
 static const unified_anim_config_t caps_config =
@@ -176,7 +171,7 @@ static const unified_anim_config_t *layer_configs[] = {&layer_0_config, &layer_1
 // Frame and boot animations
 static unified_anim_t layer_frame_anim;
 static unified_anim_t caps_frame_anim, mods_frame_anim;
-static unified_anim_t wpm_frame_anim, wpm_anim;
+static unified_anim_t wpm_frame_anim;
 
 // Modifier animations (NOW WORKING!)
 static unified_anim_t caps_anim, super_anim, alt_anim, shift_anim, ctrl_anim;
@@ -240,6 +235,53 @@ static const slice_t SLICE_digit_6 = SLICE8x16(digit_6);
 static const slice_t SLICE_digit_7 = SLICE8x16(digit_7);
 static const slice_t SLICE_digit_8 = SLICE8x16(digit_8);
 static const slice_t SLICE_digit_9 = SLICE8x16(digit_9);
+
+static const slice_t *const WPM_DIGIT_SLICES[] = {
+    &SLICE_digit_0, &SLICE_digit_1, &SLICE_digit_2, &SLICE_digit_3, &SLICE_digit_4,
+    &SLICE_digit_5, &SLICE_digit_6, &SLICE_digit_7, &SLICE_digit_8, &SLICE_digit_9,
+};
+
+#define WPM_DIGIT_WIDTH 8
+#define WPM_DIGIT_HEIGHT 16
+#define WPM_AREA_X 83
+#define WPM_AREA_Y 8
+#define WPM_AREA_WIDTH 32
+
+static void draw_wpm_digits(uint16_t raw_wpm) {
+    // Clamp to what fits in the 3-digit area
+    if (raw_wpm > 999) {
+        raw_wpm = 999;
+    }
+
+    uint8_t wpm    = (uint8_t)raw_wpm;
+    uint8_t digits[3];
+    uint8_t count = 0;
+
+    if (wpm >= 100) {
+        digits[0] = wpm / 100;
+        digits[1] = (wpm / 10) % 10;
+        digits[2] = wpm % 10;
+        count     = 3;
+    } else if (wpm >= 10) {
+        digits[0] = wpm / 10;
+        digits[1] = wpm % 10;
+        count     = 2;
+    } else {
+        digits[0] = wpm;
+        count     = 1;
+    }
+
+    // Clear previous digits then right-align the new value
+    clear_rect(WPM_AREA_X, WPM_AREA_Y, WPM_AREA_WIDTH, WPM_DIGIT_HEIGHT);
+
+    uint8_t start_x = WPM_AREA_X + (WPM_AREA_WIDTH - (count * WPM_DIGIT_WIDTH));
+    for (uint8_t i = 0; i < count; i++) {
+        uint8_t digit = digits[i];
+        if (digit < (sizeof(WPM_DIGIT_SLICES) / sizeof(WPM_DIGIT_SLICES[0]))) {
+            draw_slice_px(WPM_DIGIT_SLICES[digit], (uint8_t)(start_x + (i * WPM_DIGIT_WIDTH)), WPM_AREA_Y);
+        }
+    }
+}
 
 // ============================================================================
 // Modern Unified Animation Management
@@ -440,13 +482,14 @@ void draw_wpm_frame(void) {
     static bool wpm_initialized = false;
     if (!wpm_initialized) {
         unified_anim_init(&wpm_frame_anim, &wpm_frame_config, 0, now);
-        unified_anim_init(&wpm_anim, &wpm_config, 0, now);
         wpm_initialized = true;
     }
 
     // Render WPM animations
     unified_anim_render(&wpm_frame_anim, now);
-    unified_anim_render(&wpm_anim, now);
+
+    // Draw numeric WPM (right-aligned, no leading zeros)
+    draw_wpm_digits(wpm_stats_get_current());
 }
 
 void draw_logo(void) {
@@ -513,9 +556,6 @@ void trigger_layer_transition_effect(void) {
  * - More consistent timing across animations
  * - Easier to customize animation behavior
  */
-
-
-
 
 
 
