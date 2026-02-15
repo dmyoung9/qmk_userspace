@@ -1,13 +1,18 @@
+#include <stdint.h>
+
 #include QMK_KEYBOARD_H
 
-enum layers { _BASE, _NUM, _NAV, _FUNC, _TASK, _GAME };
-enum { TD_CMD, TD_BLUETOOTH_MUTE, TD_DISABLE_GAME };
+enum layers { _BASE, _GAME, _UNICODE, _NUM, _NAV, _FUNC, _TASK };
+enum { TD_CMD, TD_BLUETOOTH_MUTE };
 enum custom_keycodes { CUS_TSK = SAFE_RANGE, CUS_SNT, CUS_SLK };
 
 // simple layers, no tri-layer
 #define NUM MO(_NUM)
 #define NAV MO(_NAV)
 #define FUNC MO(_FUNC)
+
+#define BASE TO(_BASE)
+#define UNICODE TT(_UNICODE)
 
 // left-hand GACS
 #define MOD_HLG MT(MOD_LGUI, KC_A)
@@ -36,7 +41,6 @@ enum combos {
 // tap-dances
 #define TD_BTTG TD(TD_BLUETOOTH_MUTE)
 #define TD_FUNC TD(TD_CMD)
-#define TD_GAME TD(TD_DISABLE_GAME)
 
 // shortcuts
 #define CUS_GPT A(KC_SPC)

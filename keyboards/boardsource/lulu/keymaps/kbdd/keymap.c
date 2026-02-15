@@ -34,11 +34,13 @@ const indicator_t PROGMEM indicators[] = {
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE)),
     ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE)),
+    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_UNICODE, HUE(HUE_BLUE)),
     KEYCODE_INDICATOR(QK_BOOT, HUE(HUE_RED)),
     KEYCODE_INDICATOR(CW_TOGG, HUE(HUE_MAGENTA)),
     KEYCODE_INDICATOR(NUM, WHITE_COLOR),
     KEYCODE_INDICATOR(KC_ESC, HUE(HUE_MAGENTA)),
-    KEYCODE_INDICATOR(OS_LSFT, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(BASE, WHITE_COLOR),
+    KEYCODE_INDICATOR(UNICODE, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(TD_FUNC, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(TD_BTTG, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(NAV, WHITE_COLOR),
@@ -54,14 +56,89 @@ const indicator_t PROGMEM indicators[] = {
     LAYER_INDICATOR(_GAME, HUE(HUE_GREEN)),
 };
 
+#ifdef UNICODE_SELECTED_MODES
+enum unicode_names {
+    DR,     LH,     DL, //   ┏ ━ ┓
+            DH,         //     ┳
+    LV, VR, VH,    VL,  // ┃ ┣ ╋ ┫
+            UH,         //     ┻
+    UR,            UL,  //   ┗   ┛
+    BF, BD, BM,    BL,  // █ ▓ ▒ ░
+
+    HUNDO, THUMBS_UP, THUMBS_DOWN, EYES,
+    STAR, FIRE, TADA, SPARKLES, THREAD, LOCK,
+    PROHIBITED, WARNING, CROSS, CHECK, CIRCLE,
+    BRAIN, LIGHTBULB, SWEAT_SMILE, ROFL, SMILE,
+    GRIMACE,
+};
+
+const uint32_t PROGMEM unicode_map[] = {
+    // BOX DRAWING
+    [DR] = 0x250F,  // ┏
+    [LH] = 0x2501,  // ━
+    [DL] = 0x2513,  // ┓
+    [DH] = 0x2533,  // ┳
+    [LV] = 0x2503,  // ┃
+    [VR] = 0x2523,  // ┣
+    [VH] = 0x254B,  // ╋
+    [VL] = 0x252B,  // ┫
+    [UH] = 0x253B,  // ┻
+    [UR] = 0x2517,  // ┗
+    [UL] = 0x251B,  // ┛
+    [BF] = 0x2588,  // █
+    [BD] = 0x2593,  // ▓
+    [BM] = 0x2592,  // ▒
+    [BL] = 0x2591,  // ░
+
+    // EMOJI
+    [HUNDO] = 0x1F4AF,
+    [THUMBS_UP] = 0x1F44D,
+    [THUMBS_DOWN] = 0x1F44E,
+    [EYES] = 0x1F440,
+    [STAR] = 0x1F31F,
+    [FIRE] = 0x1F525,
+    [TADA] = 0x1F389,
+    [SPARKLES] = 0x2728,
+    [THREAD] = 0x1F9F5,
+    [LOCK] = 0x1F512,
+    [PROHIBITED] = 0x1F6AB,
+    [WARNING] = 0x26A0,
+    [CROSS] = 0x274C,
+    [CHECK] = 0x2714,
+    [CIRCLE] = 0x2B55,
+    [BRAIN] = 0x1F9E0,
+    [LIGHTBULB] = 0x1F4A1,
+    [SWEAT_SMILE] = 0x1F605,
+    [ROFL] = 0x1F923,
+    [SMILE] = 0x263A,
+    [GRIMACE] = 0x1F62C,
+};
+#endif
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // ----- STANDARD LAYERS -----
 [_BASE] = LAYOUT(
     KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
-    KC_BSLS, KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , OS_LSFT,
+    KC_BSLS, KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , UNICODE,
     KC_TAB , MOD_HLG, MOD_HLA, MOD_HLS, MOD_HLC, KC_G   ,                   KC_H   , MOD_HRC, MOD_HRS, MOD_HRA, MOD_HRG, KC_QUOT,
     CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , TD_BTTG, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD_FUNC,
                                CUS_SLK, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , CUS_GPT
+),
+
+[_GAME] = LAYOUT(
+    BASE    , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
+    KC_TAB  , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_RSFT,
+    KC_LSFT , KC_A   , KC_S   , KC_D   , KC_F   , KC_G   ,                   KC_H   , KC_J   , KC_K   , KC_L   , KC_SCLN, KC_QUOT,
+    KC_LCTL , KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, KC_RCTL,
+                                KC_LALT, KC_LGUI, KC_DEL , KC_SPC , KC_BSPC, KC_ENT , KC_RGUI, KC_F11
+),
+
+[_UNICODE] = LAYOUT(
+    KC_GRV , UM(BL)       , UM(BM)    , UM(BD) , UM(BF) , XXXXXXX,                   XXXXXXX        , UM(ROFL) , UM(SWEAT_SMILE), UM(GRIMACE)   , XXXXXXX      , XXXXXXX,
+    UM(LV) , UM(VH)       , XXXXXXX   , UM(DR) , UM(DH) , UM(DL) ,                   UM(THUMBS_DOWN), UM(BRAIN), UM(LOCK)       , UM(PROHIBITED), UM(WARNING)  , BASE   ,
+    XXXXXXX, UM(LIGHTBULB), UM(CIRCLE), UM(VR) , UM(LH) , UM(VL) ,                   UM(THUMBS_UP)  , UM(EYES) , UM(SMILE)      , UM(TADA)      , UM(SPARKLES) , XXXXXXX,
+    XXXXXXX, UM(HUNDO)    , UM(CROSS) , UM(UR) , UM(UH) , UM(UL) , KC_ESC , XXXXXXX, XXXXXXX        , UM(STAR) , UM(FIRE)       , UM(THREAD)    , UM(LIGHTBULB), XXXXXXX,
+                                        XXXXXXX, XXXXXXX, KC_DEL , KC_BSPC, KC_SPC , KC_ENT         , XXXXXXX  , XXXXXXX
 ),
 
 [_NUM] = LAYOUT(
@@ -95,34 +172,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______, _______, _______, _______, _______, KC_ESC ,  KC_TAB, _______, _______, _______, _______, _______, _______,
                                _______, _______, _______, _______, _______, KC_ENT , _______, _______
 ),
-
-[_GAME] = LAYOUT(
-    TD_GAME , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
-    KC_TAB  , KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_RSFT,
-    KC_LSFT , KC_A   , KC_S   , KC_D   , KC_F   , KC_G   ,                   KC_H   , KC_J   , KC_K   , KC_L   , KC_SCLN, KC_QUOT,
-    KC_LCTL , KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , KC_MUTE, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, KC_RCTL,
-                                KC_LALT, KC_LGUI, KC_DEL , KC_SPC , KC_BSPC, KC_ENT , KC_RGUI, KC_F11
-),
 };
 
 #ifdef ENCODER_MAP_ENABLE
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
-    [1] = { ENCODER_CCW_CW(S(KC_TAB), KC_TAB) },
-    [2] = { ENCODER_CCW_CW(KC_UP, KC_DOWN) },
-    [3] = { ENCODER_CCW_CW(_______, _______) },
-    [4] = { ENCODER_CCW_CW(KC_LEFT, KC_RGHT) },
-    [5] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+    [0] = { ENCODER_CCW_CW(KC_VOLD  , KC_VOLU) },
+    [1] = { ENCODER_CCW_CW(KC_VOLD  , KC_VOLU) },
+    [2] = { ENCODER_CCW_CW(KC_BSPC  , UM(LH)  ) },
+    [3] = { ENCODER_CCW_CW(S(KC_TAB), KC_TAB ) },
+    [4] = { ENCODER_CCW_CW(KC_UP    , KC_DOWN) },
+    [5] = { ENCODER_CCW_CW(_______  , _______) },
+    [6] = { ENCODER_CCW_CW(KC_LEFT  , KC_RGHT) },
 };
 
 const uint8_t encoder_leds[NUM_ENCODERS] = { 65 };
 const color_t PROGMEM encoder_ledmap[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [0] = { { HUE(HUE_RED), HUE(HUE_GREEN) } },
-    [1] = { { HUE(HUE_YELLOW), HUE(HUE_YELLOW) } },
-    [2] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
-    [3] = { { TRNS_COLOR, TRNS_COLOR } },
+    [1] = { { HUE(HUE_RED), HUE(HUE_GREEN) } },
+    [2] = { { TRNS_COLOR, TRNS_COLOR } },
+    [3] = { { HUE(HUE_YELLOW), HUE(HUE_YELLOW) } },
     [4] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
-    [5] = { { HUE(HUE_RED), HUE(HUE_GREEN) } },
+    [5] = { { TRNS_COLOR, TRNS_COLOR } },
+    [6] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
 };
 #endif
 
@@ -329,5 +400,4 @@ bool rgb_matrix_indicators_user(void) {
 tap_dance_action_t tap_dance_actions[] = {
     [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
     [TD_BLUETOOTH_MUTE] = ACTION_TAP_DANCE_FN(td_bluetooth_mute_finished),
-    [TD_DISABLE_GAME] = ACTION_TAP_DANCE_LAYER_TOGGLE(KC_GRAVE, _GAME),
 };
