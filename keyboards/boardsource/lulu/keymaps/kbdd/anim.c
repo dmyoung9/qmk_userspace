@@ -178,7 +178,7 @@ static unified_anim_t caps_anim, super_anim, alt_anim, shift_anim, ctrl_anim;
 
 // State management
 static uint8_t current_layer = 0;
-static bool layer_is_active[LAYER_COUNT] = {false, false, false, false, false, false};
+static bool layer_is_active[DYNAMIC_KEYMAP_LAYER_COUNT];
 
 // Layer transition state machine (simplified with unified system)
 typedef enum {
@@ -294,7 +294,7 @@ void init_widgets(void) {
     current_layer = get_highest_layer(layer_state);
 
     // Clamp current_layer to valid range
-    if (current_layer >= LAYER_COUNT) {
+    if (current_layer >= DYNAMIC_KEYMAP_LAYER_COUNT) {
         current_layer = 0;
     }
 
@@ -328,7 +328,7 @@ void init_widgets(void) {
 // ============================================================================
 
 static void trigger_layer_enter(uint8_t layer, uint32_t now) {
-    if (layer >= LAYER_COUNT || !layer_anims[layer]) return;
+    if (layer >= DYNAMIC_KEYMAP_LAYER_COUNT || !layer_anims[layer]) return;
 
     // For toggle animations: trigger with state=1 (on/active)
     // This will animate from 0 (off) to last (on) if currently off
@@ -337,7 +337,7 @@ static void trigger_layer_enter(uint8_t layer, uint32_t now) {
 }
 
 static void trigger_layer_exit(uint8_t layer, uint32_t now) {
-    if (layer >= LAYER_COUNT || !layer_anims[layer]) return;
+    if (layer >= DYNAMIC_KEYMAP_LAYER_COUNT || !layer_anims[layer]) return;
 
     // For toggle animations: trigger with state=0 (off/inactive)
     // This will animate from last (on) to 0 (off) if currently on
@@ -352,12 +352,12 @@ void tick_widgets(void) {
     uint8_t new_layer = get_highest_layer(layer_state);
 
     // Clamp new_layer to valid range to prevent crashes
-    if (new_layer >= LAYER_COUNT) {
+    if (new_layer >= DYNAMIC_KEYMAP_LAYER_COUNT) {
         new_layer = 0;  // Default to layer 0 if invalid
     }
 
     // Ensure current_layer is also valid
-    if (current_layer >= LAYER_COUNT) {
+    if (current_layer >= DYNAMIC_KEYMAP_LAYER_COUNT) {
         current_layer = 0;
     }
 
@@ -366,7 +366,7 @@ void tick_widgets(void) {
             if (new_layer != current_layer) {
                 // Start transition with bounds checking
                 // For toggle animations, we don't need to wait for boot completion
-                if (current_layer < LAYER_COUNT && layer_anims[current_layer]) {
+                if (current_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[current_layer]) {
                     trigger_layer_exit(current_layer, now);
                     transition_state = LAYER_TRANSITION_EXITING;
                     exiting_layer = current_layer;
@@ -388,7 +388,7 @@ void tick_widgets(void) {
             }
 
             // Wait for exit animation to complete (on→off: last→0)
-            if (exiting_layer < LAYER_COUNT && layer_anims[exiting_layer]) {
+            if (exiting_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[exiting_layer]) {
                 if (!unified_anim_is_running(layer_anims[exiting_layer])) {
                     // Exit animation completed, start enter animation
                     trigger_layer_enter(entering_layer, now);
@@ -416,7 +416,7 @@ void tick_widgets(void) {
                 }
             } else {
                 // Wait for enter animation to complete (off→on: 0→last)
-                if (entering_layer < LAYER_COUNT && layer_anims[entering_layer]) {
+                if (entering_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[entering_layer]) {
                     if (!unified_anim_is_running(layer_anims[entering_layer])) {
                         // Enter animation completed, transition is done
                         current_layer = entering_layer;
@@ -440,21 +440,21 @@ void tick_widgets(void) {
     switch (transition_state) {
         case LAYER_TRANSITION_IDLE:
             // Only render current layer (showing steady last frame)
-            if (current_layer < LAYER_COUNT && layer_anims[current_layer]) {
+            if (current_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[current_layer]) {
                 unified_anim_render(layer_anims[current_layer], now);
             }
             break;
 
         case LAYER_TRANSITION_EXITING:
             // Render exiting layer (animating last→0)
-            if (exiting_layer < LAYER_COUNT && layer_anims[exiting_layer]) {
+            if (exiting_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[exiting_layer]) {
                 unified_anim_render(layer_anims[exiting_layer], now);
             }
             break;
 
         case LAYER_TRANSITION_ENTERING:
             // Render entering layer (animating 0→last)
-            if (entering_layer < LAYER_COUNT && layer_anims[entering_layer]) {
+            if (entering_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[entering_layer]) {
                 unified_anim_render(layer_anims[entering_layer], now);
             }
             break;
