@@ -8,6 +8,7 @@ extern const uint8_t PROGMEM nav_0[], nav_1[], nav_2[], nav_3[], nav_4[], nav_5[
 extern const uint8_t PROGMEM func_0[], func_1[], func_2[], func_3[], func_4[], func_5[], func_6[], func_7[];  // 72x12
 extern const uint8_t PROGMEM task_0[], task_1[], task_2[], task_3[];  // 72x12
 extern const uint8_t PROGMEM game_0[], game_1[], game_2[], game_3[], game_4[], game_5[];  // 72x12
+extern const uint8_t PROGMEM unicode_0[], unicode_1[], unicode_2[], unicode_3[], unicode_4[], unicode_5[], unicode_6[];  // 72x12
 
 extern const uint8_t PROGMEM wpm_frame[];  // 128x32
 extern const uint8_t PROGMEM logo[];  // 22x16
