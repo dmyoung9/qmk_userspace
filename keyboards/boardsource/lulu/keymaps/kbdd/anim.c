@@ -41,36 +41,36 @@
 // ============================================================================
 
 // Layer animation sequences
-DEFINE_SLICE_SEQ(layer_0,
-    SLICE72x12(layer_0_0), SLICE72x12(layer_0_1), SLICE72x12(layer_0_2),
-    SLICE72x12(layer_0_3), SLICE72x12(layer_0_4), SLICE72x12(layer_0_5)
+DEFINE_SLICE_SEQ(qwerty,
+    SLICE72x12(qwerty_0), SLICE72x12(qwerty_1), SLICE72x12(qwerty_2),
+    SLICE72x12(qwerty_3), SLICE72x12(qwerty_4), SLICE72x12(qwerty_5)
 );
 
-DEFINE_SLICE_SEQ(layer_1,
-    SLICE72x12(layer_1_0), SLICE72x12(layer_1_1), SLICE72x12(layer_1_2),
-    SLICE72x12(layer_1_3), SLICE72x12(layer_1_4), SLICE72x12(layer_1_5)
+DEFINE_SLICE_SEQ(num,
+    SLICE72x12(num_0), SLICE72x12(num_1), SLICE72x12(num_2),
+    SLICE72x12(num_3), SLICE72x12(num_4), SLICE72x12(num_5)
 );
 
-DEFINE_SLICE_SEQ(layer_2,
-    SLICE72x12(layer_2_0), SLICE72x12(layer_2_1), SLICE72x12(layer_2_2),
-    SLICE72x12(layer_2_3), SLICE72x12(layer_2_4), SLICE72x12(layer_2_5),
-    SLICE72x12(layer_2_6), SLICE72x12(layer_2_7), SLICE72x12(layer_2_8), SLICE72x12(layer_2_9)
+DEFINE_SLICE_SEQ(nav,
+    SLICE72x12(nav_0), SLICE72x12(nav_1), SLICE72x12(nav_2),
+    SLICE72x12(nav_3), SLICE72x12(nav_4), SLICE72x12(nav_5),
+    SLICE72x12(nav_6), SLICE72x12(nav_7), SLICE72x12(nav_8), SLICE72x12(nav_9)
 );
 
-DEFINE_SLICE_SEQ(layer_3,
-    SLICE72x12(layer_3_0), SLICE72x12(layer_3_1), SLICE72x12(layer_3_2),
-    SLICE72x12(layer_3_3), SLICE72x12(layer_3_4), SLICE72x12(layer_3_5),
-    SLICE72x12(layer_3_6), SLICE72x12(layer_3_7)
+DEFINE_SLICE_SEQ(func,
+    SLICE72x12(func_0), SLICE72x12(func_1), SLICE72x12(func_2),
+    SLICE72x12(func_3), SLICE72x12(func_4), SLICE72x12(func_5),
+    SLICE72x12(func_6), SLICE72x12(func_7)
 );
 
-DEFINE_SLICE_SEQ(layer_4,
-    SLICE72x12(layer_4_0), SLICE72x12(layer_4_1), SLICE72x12(layer_4_2),
-    SLICE72x12(layer_4_3),
+DEFINE_SLICE_SEQ(task,
+    SLICE72x12(task_0), SLICE72x12(task_1), SLICE72x12(task_2),
+    SLICE72x12(task_3),
 );
 
-DEFINE_SLICE_SEQ(layer_5,
-    SLICE72x12(layer_5_0), SLICE72x12(layer_5_1), SLICE72x12(layer_5_2),
-    SLICE72x12(layer_5_3), SLICE72x12(layer_5_4), SLICE72x12(layer_5_5),
+DEFINE_SLICE_SEQ(game,
+    SLICE72x12(game_0), SLICE72x12(game_1), SLICE72x12(game_2),
+    SLICE72x12(game_3), SLICE72x12(game_4), SLICE72x12(game_5),
 );
 
 // Layer frame animation
@@ -124,18 +124,18 @@ DEFINE_SLICE_SEQ(ctrl_seq,
 
 // Layer animations (toggle pattern - can animate in both directions)
 // 0th frame = inactive/initial, last frame = active/idle
-static const unified_anim_config_t layer_0_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_0, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t layer_1_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_1, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t layer_2_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_2, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t layer_3_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_3, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t layer_4_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_4, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t layer_5_config =
-    UNIFIED_TOGGLE_CONFIG(&layer_5, 56, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t qwerty_config =
+    UNIFIED_TOGGLE_CONFIG(&qwerty, 56, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t num_config =
+    UNIFIED_TOGGLE_CONFIG(&num, 56, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t nav_config =
+    UNIFIED_TOGGLE_CONFIG(&nav, 56, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t func_config =
+    UNIFIED_TOGGLE_CONFIG(&func, 56, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t task_config =
+    UNIFIED_TOGGLE_CONFIG(&task, 56, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t game_config =
+    UNIFIED_TOGGLE_CONFIG(&game, 56, 0, BLEND_ADDITIVE);
 
 // Layer frame animation (bootrev pattern - boot then reverse-out-back on trigger)
 static const unified_anim_config_t layer_frame_config =

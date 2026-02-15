@@ -2,12 +2,12 @@
 
 #include QMK_KEYBOARD_H
 
-extern const uint8_t PROGMEM layer_0_0[], layer_0_1[], layer_0_2[], layer_0_3[], layer_0_4[], layer_0_5[];  // 72x14
-extern const uint8_t PROGMEM layer_1_0[], layer_1_1[], layer_1_2[], layer_1_3[], layer_1_4[], layer_1_5[];  // 72x14
-extern const uint8_t PROGMEM layer_2_0[], layer_2_1[], layer_2_2[], layer_2_3[], layer_2_4[], layer_2_5[], layer_2_6[], layer_2_7[], layer_2_8[], layer_2_9[];  // 72x14
-extern const uint8_t PROGMEM layer_3_0[], layer_3_1[], layer_3_2[], layer_3_3[], layer_3_4[], layer_3_5[], layer_3_6[], layer_3_7[];  // 72x14
-extern const uint8_t PROGMEM layer_4_0[], layer_4_1[], layer_4_2[], layer_4_3[];  // 72x14
-extern const uint8_t PROGMEM layer_5_0[], layer_5_1[], layer_5_2[], layer_5_3[], layer_5_4[], layer_5_5[];  // 72x14
+extern const uint8_t PROGMEM qwerty_0[], qwerty_1[], qwerty_2[], qwerty_3[], qwerty_4[], qwerty_5[];  // 72x12
+extern const uint8_t PROGMEM num_0[], num_1[], num_2[], num_3[], num_4[], num_5[];  // 72x12
+extern const uint8_t PROGMEM nav_0[], nav_1[], nav_2[], nav_3[], nav_4[], nav_5[], nav_6[], nav_7[], nav_8[], nav_9[];  // 72x12
+extern const uint8_t PROGMEM func_0[], func_1[], func_2[], func_3[], func_4[], func_5[], func_6[], func_7[];  // 72x12
+extern const uint8_t PROGMEM task_0[], task_1[], task_2[], task_3[];  // 72x12
+extern const uint8_t PROGMEM game_0[], game_1[], game_2[], game_3[], game_4[], game_5[];  // 72x12
 
 extern const uint8_t PROGMEM wpm_frame[];  // 128x32
 extern const uint8_t PROGMEM logo[];  // 22x16
