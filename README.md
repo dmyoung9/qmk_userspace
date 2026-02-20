@@ -15,10 +15,10 @@
 * [Gateron Milky Yellow Pro V2](https://www.gateron.co/products/gateron-ks-3x1-full-milky-switch-set?variant=40069272141913) ([Buy on Amazon](https://www.amazon.com/dp/B0C2CWR4HH))
 * [Drop MT3 White-on-Black Keycap Set (Ortho Kit)](https://drop.com/buy/drop-mt3-white-on-black-keycap-set)
 * [Drop + Mito Pulse MT3 Keycap Set (Extras Kit)](https://drop.com/buy/drop-mito-mt3-pulse-keycap-set)
-* [Drop + Matt3o /dev/tty MT3 Custom Keycap Set R3 (RGB)](https://drop.com/buy/drop-matt3o-devtty-custom-keycap-set)
+* [Drop + Matt3o MT3 3277 Custom Keycap Set (Magenta Accent)](https://drop.com/buy/drop-matt3o-mt3-3277-custom-keycap-set)
 
 ## Keymap
-![keymap](kbdd.png "keymap")
+![keymap](kbdd-57-(cotton-candy).png "keymap")
 
 ### Key Features
 * [Home Row Mods](https://precondition.github.io/home-row-mods)
