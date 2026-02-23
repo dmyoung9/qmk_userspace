@@ -242,8 +242,7 @@ bool oled_task_user(void) {
     }
 
     if (!is_keyboard_master()) {
-        draw_wpm_frame();
-        wpm_stats_oled_render();
+        draw_horizon();
     } else {
         tick_widgets();
         draw_logo();

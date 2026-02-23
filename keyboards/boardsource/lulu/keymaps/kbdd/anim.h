@@ -8,6 +8,7 @@
 
 // Modern unified animation system
 void init_widgets(void);
+void draw_horizon(void);
 void draw_wpm_frame(void);
 void draw_logo(void);
 void tick_widgets(void);

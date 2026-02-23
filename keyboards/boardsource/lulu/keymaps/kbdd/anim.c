@@ -14,6 +14,7 @@
 #include QMK_KEYBOARD_H
 #include "anim.h"
 #include "progmem_anim.h"
+#include "progmem_horizon.h"
 #include "oled_utils.h"
 #include "oled_unified_anim.h"  // Modern unified animation system
 #include "wpm_stats.h"
@@ -96,6 +97,12 @@ DEFINE_SLICE_SEQ(mods_frame_seq,
     SLICE106x16(mods_frame_3), SLICE106x16(mods_frame_4)
 );
 
+// Horizon
+DEFINE_SLICE_SEQ(horizon_seq,
+    SLICE128x32(horizon_0), SLICE128x32(horizon_1), SLICE128x32(horizon_2),
+    SLICE128x32(horizon_3)
+);
+
 // WPM sequences (slave screen)
 DEFINE_SLICE_SEQ(wpm_frame_seq,
     SLICE128x32(wpm_frame_0), SLICE128x32(wpm_frame_1), SLICE128x32(wpm_frame_2),
@@ -160,6 +167,9 @@ static const unified_anim_config_t mods_frame_config =
 static const unified_anim_config_t wpm_frame_config =
     UNIFIED_ONESHOT_CONFIG(&wpm_frame_seq, 0, 0, STEADY_LAST, true);
 
+// Horizon
+static const unified_anim_config_t horizon_config = UNIFIED_LOOP_CONFIG(&horizon_seq, 0, 0, STEADY_LAST, true);
+
 // Modifier animations (toggle pattern - smooth on/off transitions)
 static const unified_anim_config_t caps_config =
     UNIFIED_TOGGLE_CONFIG(&caps_seq, 10, 2, BLEND_ADDITIVE);
@@ -179,6 +189,7 @@ static unified_anim_t layer_transition_anim;
 static unified_anim_t layer_frame_anim;
 static unified_anim_t caps_frame_anim, mods_frame_anim;
 static unified_anim_t wpm_frame_anim;
+static unified_anim_t horizon_anim;
 
 // Modifier animations (NOW WORKING!)
 static unified_anim_t caps_anim, super_anim, alt_anim, shift_anim, ctrl_anim;
@@ -355,6 +366,20 @@ void tick_widgets(void) {
     unified_anim_render(&alt_anim, now);
     unified_anim_render(&shift_anim, now);
     unified_anim_render(&ctrl_anim, now);
+}
+
+void draw_horizon(void) {
+    uint32_t now = timer_read32();
+
+    // Initialize Horizon animations
+    static bool horizon_initialized = false;
+    if (!horizon_initialized) {
+        unified_anim_init(&horizon_anim, &horizon_config, 0, now);
+        horizon_initialized = true;
+    }
+
+    // Render Horizon animations
+    unified_anim_render(&horizon_anim, now);
 }
 
 void draw_wpm_frame(void) {
