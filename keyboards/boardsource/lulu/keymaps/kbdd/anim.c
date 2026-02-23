@@ -128,22 +128,23 @@ DEFINE_SLICE_SEQ(ctrl_seq,
 // Modern Unified Animation System
 // ============================================================================
 
-// Layer animations (toggle pattern - can animate in both directions)
-// 0th frame = inactive/initial, last frame = active/idle
-static const unified_anim_config_t qwerty_config =
-    UNIFIED_TOGGLE_CONFIG(&qwerty, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t num_config =
-    UNIFIED_TOGGLE_CONFIG(&num, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t nav_config =
-    UNIFIED_TOGGLE_CONFIG(&nav, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t func_config =
-    UNIFIED_TOGGLE_CONFIG(&func, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t task_config =
-    UNIFIED_TOGGLE_CONFIG(&task, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t game_config =
-    UNIFIED_TOGGLE_CONFIG(&game, 56, 0, BLEND_ADDITIVE);
-static const unified_anim_config_t unicode_layer_config =
-    UNIFIED_TOGGLE_CONFIG(&unicode, 56, 0, BLEND_ADDITIVE);
+enum { LAYER_COUNT = 7 };
+
+static const slice_seq_t *const layer_seq_map[LAYER_COUNT] = {
+    [0] = &qwerty, [1] = &game, [2] = &unicode, [3] = &num, [4] = &nav, [5] = &func, [6] = &task,
+};
+
+static const unified_anim_config_t layer_transition_config = {
+    .seq           = 0,
+    .behavior      = ANIM_LAYER_TRANSITION,
+    .steady        = STEADY_LAST,
+    .blend         = BLEND_ADDITIVE,
+    .x             = 56,
+    .y             = 0,
+    .run_boot_anim = false,
+    .seq_map       = layer_seq_map,
+    .state_count   = LAYER_COUNT,
+};
 
 // Layer frame animation (bootrev pattern - boot then reverse-out-back on trigger)
 static const unified_anim_config_t layer_frame_config =
@@ -172,9 +173,7 @@ static const unified_anim_config_t ctrl_config =
     UNIFIED_TOGGLE_CONFIG(&ctrl_seq, 77, 22, BLEND_OPAQUE);
 
 // Runtime instances
-static unified_anim_t qwerty_anim, num_anim, nav_anim, func_anim, task_anim, game_anim, unicode_anim;
-static unified_anim_t *layer_anims[] = {&qwerty_anim, &game_anim, &unicode_anim, &num_anim, &nav_anim, &func_anim, &task_anim};
-static const unified_anim_config_t *layer_configs[] = {&qwerty_config, &game_config, &unicode_layer_config, &num_config, &nav_config, &func_config, &task_config};
+static unified_anim_t layer_transition_anim;
 
 // Frame and boot animations
 static unified_anim_t layer_frame_anim;
@@ -185,19 +184,12 @@ static unified_anim_t wpm_frame_anim;
 static unified_anim_t caps_anim, super_anim, alt_anim, shift_anim, ctrl_anim;
 
 // State management
-static uint8_t current_layer = 0;
-static bool layer_is_active[DYNAMIC_KEYMAP_LAYER_COUNT];
+static uint8_t current_layer      = 0;
+static uint8_t last_layer_request = 0;
 
-// Layer transition state machine (simplified with unified system)
-typedef enum {
-    LAYER_TRANSITION_IDLE = 0,
-    LAYER_TRANSITION_EXITING,
-    LAYER_TRANSITION_ENTERING
-} layer_transition_state_t;
-
-static layer_transition_state_t transition_state = LAYER_TRANSITION_IDLE;
-static uint8_t exiting_layer = 0;
-static uint8_t entering_layer = 0;
+static inline bool layer_index_valid(uint8_t layer) {
+    return layer < LAYER_COUNT;
+}
 
 // ============================================================================
 // Modifier State Detection (same as before)
@@ -261,9 +253,9 @@ static void draw_wpm_digits(uint16_t raw_wpm) {
         raw_wpm = 999;
     }
 
-    uint8_t wpm    = (uint8_t)raw_wpm;
     uint8_t digits[3];
     uint8_t count = 0;
+    uint16_t wpm = raw_wpm;
 
     if (wpm >= 100) {
         digits[0] = wpm / 100;
@@ -298,25 +290,13 @@ static void draw_wpm_digits(uint16_t raw_wpm) {
 void init_widgets(void) {
     uint32_t now = timer_read32();
 
-    // Initialize layer animations
+    // Initialize layer transition controller
     current_layer = get_highest_layer(layer_state);
-
-    // Clamp current_layer to valid range
-    if (current_layer >= DYNAMIC_KEYMAP_LAYER_COUNT) {
+    if (!layer_index_valid(current_layer)) {
         current_layer = 0;
     }
-
-    for (uint8_t i = 0; i < (sizeof(layer_anims) / sizeof(layer_anims[0])); i++) {
-        bool is_active = (i == current_layer);
-
-        // For toggle animations: initial_state = 1 means "on" (active layer shows last frame)
-        // initial_state = 0 means "off" (inactive layers show first frame)
-        uint8_t initial_state = is_active ? 1 : 0;
-
-        // Initialize with the layer config
-        unified_anim_init(layer_anims[i], layer_configs[i], initial_state, now);
-        layer_is_active[i] = is_active;
-    }
+    last_layer_request = current_layer;
+    unified_anim_init(&layer_transition_anim, &layer_transition_config, current_layer, now);
 
     // Initialize frame and boot animations
     unified_anim_init(&layer_frame_anim, &layer_frame_config, 0, now);
@@ -335,138 +315,32 @@ void init_widgets(void) {
 // Modern Layer Transition Management
 // ============================================================================
 
-static void trigger_layer_enter(uint8_t layer, uint32_t now) {
-    if (layer >= DYNAMIC_KEYMAP_LAYER_COUNT || !layer_anims[layer]) return;
-
-    // For toggle animations: trigger with state=1 (on/active)
-    // This will animate from 0 (off) to last (on) if currently off
-    unified_anim_trigger(layer_anims[layer], 1, now);
-    layer_is_active[layer] = true;
-}
-
-static void trigger_layer_exit(uint8_t layer, uint32_t now) {
-    if (layer >= DYNAMIC_KEYMAP_LAYER_COUNT || !layer_anims[layer]) return;
-
-    // For toggle animations: trigger with state=0 (off/inactive)
-    // This will animate from last (on) to 0 (off) if currently on
-    unified_anim_trigger(layer_anims[layer], 0, now);
-    layer_is_active[layer] = false;
-}
-
 void tick_widgets(void) {
     uint32_t now = timer_read32();
 
-    // Handle layer transition state machine with bounds checking
+    // Resolve desired layer with bounds checking
     uint8_t new_layer = get_highest_layer(layer_state);
-
-    // Clamp new_layer to valid range to prevent crashes
-    if (new_layer >= DYNAMIC_KEYMAP_LAYER_COUNT) {
-        new_layer = 0;  // Default to layer 0 if invalid
+    if (!layer_index_valid(new_layer)) {
+        new_layer = 0; // Default to layer 0 if invalid
     }
 
-    // Ensure current_layer is also valid
-    if (current_layer >= DYNAMIC_KEYMAP_LAYER_COUNT) {
-        current_layer = 0;
+    if (new_layer != last_layer_request) {
+        if (unified_anim_boot_done(&layer_frame_anim)) {
+            unified_anim_trigger(&layer_frame_anim, 0, now);
+        }
+        last_layer_request = new_layer;
     }
 
-    switch (transition_state) {
-        case LAYER_TRANSITION_IDLE:
-            if (new_layer != current_layer) {
-                // Start transition with bounds checking
-                // For toggle animations, we don't need to wait for boot completion
-                if (current_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[current_layer]) {
-                    trigger_layer_exit(current_layer, now);
-                    transition_state = LAYER_TRANSITION_EXITING;
-                    exiting_layer = current_layer;
-                    entering_layer = new_layer;
-
-                    // Trigger layer frame animation (out-and-back)
-                    if (unified_anim_boot_done(&layer_frame_anim)) {
-                        unified_anim_trigger(&layer_frame_anim, 0, now);
-                    }
-                }
-            }
-            break;
-
-        case LAYER_TRANSITION_EXITING:
-            // Check for layer change cancellation during exit
-            if (new_layer != entering_layer) {
-                // Layer changed again! Update target but let current exit finish
-                entering_layer = new_layer;
-            }
-
-            // Wait for exit animation to complete (on→off: last→0)
-            if (exiting_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[exiting_layer]) {
-                if (!unified_anim_is_running(layer_anims[exiting_layer])) {
-                    // Exit animation completed, start enter animation
-                    trigger_layer_enter(entering_layer, now);
-                    transition_state = LAYER_TRANSITION_ENTERING;
-                }
-            } else {
-                // Invalid exiting layer, skip to entering
-                trigger_layer_enter(entering_layer, now);
-                transition_state = LAYER_TRANSITION_ENTERING;
-            }
-            break;
-
-        case LAYER_TRANSITION_ENTERING:
-            // Check for layer change cancellation during enter
-            if (new_layer != entering_layer) {
-                // Layer changed during enter! Start new exit sequence
-                trigger_layer_exit(entering_layer, now);
-                transition_state = LAYER_TRANSITION_EXITING;
-                exiting_layer = entering_layer;
-                entering_layer = new_layer;
-
-                // Trigger layer frame animation again
-                if (unified_anim_boot_done(&layer_frame_anim)) {
-                    unified_anim_trigger(&layer_frame_anim, 0, now);
-                }
-            } else {
-                // Wait for enter animation to complete (off→on: 0→last)
-                if (entering_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[entering_layer]) {
-                    if (!unified_anim_is_running(layer_anims[entering_layer])) {
-                        // Enter animation completed, transition is done
-                        current_layer = entering_layer;
-                        transition_state = LAYER_TRANSITION_IDLE;
-                    }
-                } else {
-                    // Invalid entering layer, complete transition anyway
-                    current_layer = entering_layer;
-                    transition_state = LAYER_TRANSITION_IDLE;
-                }
-            }
-            break;
-    }
+    unified_anim_trigger(&layer_transition_anim, new_layer, now);
+    current_layer = layer_transition_anim.current_state;
 
     // Update frame animations (background elements) - MUST render BEFORE layer animations
     unified_anim_render(&caps_frame_anim, now);
     unified_anim_render(&mods_frame_anim, now);
     unified_anim_render(&layer_frame_anim, now);
 
-    // Update layer animations - render based on transition state
-    switch (transition_state) {
-        case LAYER_TRANSITION_IDLE:
-            // Only render current layer (showing steady last frame)
-            if (current_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[current_layer]) {
-                unified_anim_render(layer_anims[current_layer], now);
-            }
-            break;
-
-        case LAYER_TRANSITION_EXITING:
-            // Render exiting layer (animating last→0)
-            if (exiting_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[exiting_layer]) {
-                unified_anim_render(layer_anims[exiting_layer], now);
-            }
-            break;
-
-        case LAYER_TRANSITION_ENTERING:
-            // Render entering layer (animating 0→last)
-            if (entering_layer < DYNAMIC_KEYMAP_LAYER_COUNT && layer_anims[entering_layer]) {
-                unified_anim_render(layer_anims[entering_layer], now);
-            }
-            break;
-    }
+    // Render current layer transition/steady frame
+    unified_anim_render(&layer_transition_anim, now);
 
     // Update modifier animations with current state (NOW WORKING!)
     unified_anim_trigger(&caps_anim, is_caps_active() ? 1 : 0, now);
@@ -564,10 +438,3 @@ void trigger_layer_transition_effect(void) {
  * - More consistent timing across animations
  * - Easier to customize animation behavior
  */
-
-
-
-
-
-
-
