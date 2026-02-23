@@ -71,6 +71,8 @@ enum unicode_names {
             UHD,         //     ┻
     URD,            ULD,  //   ┗   ┛
 
+    VAR,
+
     HUNDO, THUMBS_UP, THUMBS_DOWN, EYES,
     STAR, FIRE, TADA, SPARKLES, THREAD, LOCK,
     PROHIBITED, WARNING, CROSS, CHECK, CIRCLE,
@@ -95,7 +97,7 @@ const uint32_t PROGMEM unicode_map[] = {
     [LHD] = 0x2550,  // ━
     [DLD] = 0x2557,  // ┓
     [DHD] = 0x2566,  // ┳
-    [LVD] = 0x2552,  // ┃
+    [LVD] = 0x2551,  // ┃
     [VRD] = 0x2560,  // ┣
     [VHD] = 0x256C,  // ╋
     [VLD] = 0x2563,  // ┫
@@ -106,6 +108,8 @@ const uint32_t PROGMEM unicode_map[] = {
     [BD] = 0x2593,  // ▓
     [BM] = 0x2592,  // ▒
     [BL] = 0x2591,  // ░
+
+    [VAR] = 0xFE0F,
 
     // EMOJI
     [HUNDO] = 0x1F4AF,
@@ -127,7 +131,7 @@ const uint32_t PROGMEM unicode_map[] = {
     [LIGHTBULB] = 0x1F4A1,
     [SWEAT_SMILE] = 0x1F605,
     [ROFL] = 0x1F923,
-    [SMILE] = 0x263A,
+    [SMILE] = 0x1F60A,
     [GRIMACE] = 0x1F62C,
 };
 #endif
@@ -151,7 +155,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [_UNICODE] = LAYOUT(
-    KC_GRV,      UM(BL)       , UM(BM)     , UM(BD)      , UM(BF)      , XXXXXXX     ,                   UM(SMILE)      , UM(ROFL) , UM(SWEAT_SMILE), UM(GRIMACE)   , XXXXXXX      , XXXXXXX,
+    KC_GRV,      UM(BL)       , UM(BM)     , UM(BD)      , UM(BF)      , XXXXXXX     ,                   UM(SMILE)      , UM(ROFL) , UM(SWEAT_SMILE), UM(GRIMACE)   , XXXXXXX      , UM(VAR),
     UP(LV, LVD), UP(VH, VHD)  , XXXXXXX    , UP(DR, DRD) , UP(DH, DHD) , UP(DL, DLD) ,                   UM(THUMBS_DOWN), UM(BRAIN), UM(LOCK)       , UM(PROHIBITED), UM(WARNING)  , BASE   ,
     KC_LSFT,     UM(CHECK)    , UM(CIRCLE) , UP(VR, VRD) , UP(LH, LHD) , UP(VL, VLD) ,                   UM(THUMBS_UP)  , UM(EYES) , UM(LIGHTBULB)  , UM(TADA)      , UM(SPARKLES) , KC_RSFT,
     XXXXXXX,     UM(HUNDO)    , UM(CROSS)  , UP(UR, URD) , UP(UH, UHD) , UP(UL, ULD) , KC_ESC , XXXXXXX, XXXXXXX        , UM(STAR) , UM(FIRE)       , UM(THREAD)    , XXXXXXX      , XXXXXXX,
