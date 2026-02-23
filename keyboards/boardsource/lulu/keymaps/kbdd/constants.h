@@ -3,6 +3,7 @@
 #include QMK_KEYBOARD_H
 
 enum layers { _BASE, _GAME, _UNICODE, _NUM, _NAV, _FUNC, _TASK };
+enum { LAYER_COUNT = _TASK + 1 };
 enum { TD_CMD, TD_BLUETOOTH_MUTE };
 enum custom_keycodes { CUS_TSK = SAFE_RANGE, CUS_SNT, CUS_SLK };
 
