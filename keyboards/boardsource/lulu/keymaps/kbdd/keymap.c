@@ -171,7 +171,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [_NAV] = LAYOUT(
-    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    CUS_CODE,_______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
     _______, _______, G_UP   , KC_MYCM, _______, G_SWDSK,                   KC_HOME, KC_PGDN, KC_PGUP, KC_END , _______, _______,
     _______, G_LEFT , G_DOWN , G_RIGHT, _______, G_START,                   KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
     _______, _______, _______, _______, _______, G_DESK , _______, _______, _______, _______, _______, _______, _______, _______,
@@ -331,6 +331,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code16(C(KC_V));
                 wait_ms(100);
                 tap_code(KC_ENT);
+            }
+            return false;
+        case CUS_CODE:
+            if (record->event.pressed) {
+                SEND_STRING("```");
+                tap_code16(C(KC_J));
+                wait_ms(50);
+                tap_code16(C(KC_V));
+                tap_code16(C(KC_J));
+                wait_ms(50);
+                SEND_STRING("```");
+                tap_code16(C(KC_J));
             }
             return false;
 
