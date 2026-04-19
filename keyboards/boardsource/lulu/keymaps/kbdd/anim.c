@@ -13,190 +13,110 @@
 
 #include QMK_KEYBOARD_H
 #include "anim.h"
+#include "constants.h"
 #include "progmem_anim.h"
 #include "progmem_horizon.h"
 #include "oled_utils.h"
-#include "oled_unified_anim.h"  // Modern unified animation system
+#include "oled_unified_anim.h" // Modern unified animation system
 #include "wpm_stats.h"
 
 // ============================================================================
 // Modern Slice Macros (using comprehensive oled_slice.h system)
 // ============================================================================
 
-// Custom slice macros not provided by oled_slice.h
-#define SLICE72x12(p) SLICE_CUSTOM_PX(p, 72, 12)
-#define SLICE22x16(p) SLICE_CUSTOM_PX(p, 22, 16)
-// SLICE32x16 and SLICE128x32 are now provided by oled_slice.h
-#define SLICE106x16(p) SLICE_CUSTOM_PX(p, 106, 16)
-#define SLICE86x16(p) SLICE_CUSTOM_PX(p, 86, 16)
-#define SLICE41x16(p) SLICE_CUSTOM_PX(p, 41, 16)
+#define SLICE5x8(p) SLICE_CUSTOM_PX(p, 5, 8)
+
+// Layer slice macros (7px high) - using modern SLICE_CUSTOM_PX
+#define SLICE48x7(p) SLICE_CUSTOM_PX(p, 48, 7)
+#define SLICE56x7(p) SLICE_CUSTOM_PX(p, 56, 7)
+#define SLICE64x7(p) SLICE_CUSTOM_PX(p, 64, 7)
 
 // Modifier slice macros (9px high) - using modern SLICE_CUSTOM_PX
-#define SLICE21x9(p) SLICE_CUSTOM_PX(p, 21, 9)
 #define SLICE25x9(p) SLICE_CUSTOM_PX(p, 25, 9)
-#define SLICE17x9(p) SLICE_CUSTOM_PX(p, 17, 9)
-#define SLICE23x9(p) SLICE_CUSTOM_PX(p, 23, 9)
+#define SLICE33x9(p) SLICE_CUSTOM_PX(p, 33, 9)
+#define SLICE39x9(p) SLICE_CUSTOM_PX(p, 39, 9)
+
+#define TOP_STRIP_X 0
+#define TOP_STRIP_Y 0
+#define TOP_STRIP_WIDTH 128
+#define TOP_STRIP_HEIGHT 10
+
+#define LAYER_REGION_X 1
+#define LAYER_REGION_Y 11
+#define LAYER_REGION_WIDTH 104
+#define LAYER_REGION_HEIGHT 19
 
 // ============================================================================
 // Animation Sequences (same data, modern organization)
 // ============================================================================
 
 // Layer animation sequences
-DEFINE_SLICE_SEQ(qwerty,
-    SLICE72x12(qwerty_0), SLICE72x12(qwerty_1), SLICE72x12(qwerty_2),
-    SLICE72x12(qwerty_3), SLICE72x12(qwerty_4), SLICE72x12(qwerty_5)
-);
+DEFINE_SLICE_SEQ(qwerty, SLICE48x7(qwerty_0), SLICE48x7(qwerty_1), SLICE48x7(qwerty_2), SLICE48x7(qwerty_3), );
 
-DEFINE_SLICE_SEQ(num,
-    SLICE72x12(num_0), SLICE72x12(num_1), SLICE72x12(num_2),
-    SLICE72x12(num_3), SLICE72x12(num_4), SLICE72x12(num_5)
-);
+DEFINE_SLICE_SEQ(symbol, SLICE48x7(symbol_0), SLICE48x7(symbol_1), SLICE48x7(symbol_2), SLICE48x7(symbol_3), );
 
-DEFINE_SLICE_SEQ(nav,
-    SLICE72x12(nav_0), SLICE72x12(nav_1), SLICE72x12(nav_2),
-    SLICE72x12(nav_3), SLICE72x12(nav_4), SLICE72x12(nav_5),
-    SLICE72x12(nav_6), SLICE72x12(nav_7), SLICE72x12(nav_8), SLICE72x12(nav_9)
-);
+DEFINE_SLICE_SEQ(navigation, SLICE64x7(navigation_0), SLICE64x7(navigation_1), SLICE64x7(navigation_2), SLICE64x7(navigation_3), );
 
-DEFINE_SLICE_SEQ(func,
-    SLICE72x12(func_0), SLICE72x12(func_1), SLICE72x12(func_2),
-    SLICE72x12(func_3), SLICE72x12(func_4), SLICE72x12(func_5),
-    SLICE72x12(func_6), SLICE72x12(func_7)
-);
+DEFINE_SLICE_SEQ(function, SLICE56x7(function_0), SLICE56x7(function_1), SLICE56x7(function_2), SLICE56x7(function_3), );
 
-DEFINE_SLICE_SEQ(task,
-    SLICE72x12(task_0), SLICE72x12(task_1), SLICE72x12(task_2),
-    SLICE72x12(task_3),
-);
+DEFINE_SLICE_SEQ(gaming, SLICE48x7(gaming_0), SLICE48x7(gaming_1), SLICE48x7(gaming_2), SLICE48x7(gaming_3), );
 
-DEFINE_SLICE_SEQ(game,
-    SLICE72x12(game_0), SLICE72x12(game_1), SLICE72x12(game_2),
-    SLICE72x12(game_3), SLICE72x12(game_4), SLICE72x12(game_5),
-);
-
-DEFINE_SLICE_SEQ(unicode,
-    SLICE72x12(unicode_0), SLICE72x12(unicode_1), SLICE72x12(unicode_2),
-    SLICE72x12(unicode_3), SLICE72x12(unicode_4), SLICE72x12(unicode_5),
-    SLICE72x12(unicode_6)
-);
-
-// Layer frame animation
-DEFINE_SLICE_SEQ(layer_frame,
-    SLICE86x16(layer_frame_0), SLICE86x16(layer_frame_1), SLICE86x16(layer_frame_2),
-    SLICE86x16(layer_frame_3), SLICE86x16(layer_frame_4)
-);
+DEFINE_SLICE_SEQ(unicode, SLICE48x7(unicode_0), SLICE48x7(unicode_1), SLICE48x7(unicode_2), SLICE48x7(unicode_3), );
 
 // Boot animations
-DEFINE_SLICE_SEQ(caps_frame_seq,
-    SLICE41x16(caps_frame_0), SLICE41x16(caps_frame_1),
-    SLICE41x16(caps_frame_2), SLICE41x16(caps_frame_3)
-);
-
-DEFINE_SLICE_SEQ(mods_frame_seq,
-    SLICE106x16(mods_frame_0), SLICE106x16(mods_frame_1), SLICE106x16(mods_frame_2),
-    SLICE106x16(mods_frame_3), SLICE106x16(mods_frame_4)
-);
+DEFINE_SLICE_SEQ(boot, SLICE128x32(boot_0), SLICE128x32(boot_1), SLICE128x32(boot_2), SLICE128x32(boot_3), SLICE128x32(boot_4), SLICE128x32(boot_5), SLICE128x32(boot_6), SLICE128x32(boot_7), SLICE128x32(boot_8), SLICE128x32(boot_9), SLICE128x32(boot_10), SLICE128x32(boot_11), SLICE128x32(boot_12), SLICE128x32(boot_13), SLICE128x32(boot_14), SLICE128x32(boot_15), );
 
 // Horizon
-DEFINE_SLICE_SEQ(horizon_seq,
-    SLICE128x32(horizon_0), SLICE128x32(horizon_1), SLICE128x32(horizon_2),
-    SLICE128x32(horizon_3)
-);
-
-// WPM sequences (slave screen)
-DEFINE_SLICE_SEQ(wpm_frame_seq,
-    SLICE128x32(wpm_frame_0), SLICE128x32(wpm_frame_1), SLICE128x32(wpm_frame_2),
-    SLICE128x32(wpm_frame_3), SLICE128x32(wpm_frame_4), SLICE128x32(wpm_frame_5),
-    SLICE128x32(wpm_frame_6), SLICE128x32(wpm_frame_7), SLICE128x32(wpm_frame_8)
-);
+DEFINE_SLICE_SEQ(horizon, SLICE128x32(horizon_0), SLICE128x32(horizon_1), SLICE128x32(horizon_2), SLICE128x32(horizon_3), );
 
 // Modifier animation sequences (NOW RE-ENABLED with unified system!)
-DEFINE_SLICE_SEQ(caps_seq,
-    SLICE21x9(caps_0), SLICE21x9(caps_1), SLICE21x9(caps_2), SLICE21x9(caps_3)
-);
+DEFINE_SLICE_SEQ(super, SLICE39x9(super_0), SLICE39x9(super_1), SLICE39x9(super_2), SLICE39x9(super_3), );
 
-DEFINE_SLICE_SEQ(super_seq,
-    SLICE25x9(super_0), SLICE25x9(super_1), SLICE25x9(super_2), SLICE25x9(super_3)
-);
+DEFINE_SLICE_SEQ(alt, SLICE25x9(alt_0), SLICE25x9(alt_1), SLICE25x9(alt_2), SLICE25x9(alt_3), );
 
-DEFINE_SLICE_SEQ(alt_seq,
-    SLICE17x9(alt_0), SLICE17x9(alt_1), SLICE17x9(alt_2), SLICE17x9(alt_3)
-);
+DEFINE_SLICE_SEQ(shift, SLICE33x9(shift_0), SLICE33x9(shift_1), SLICE33x9(shift_2), SLICE33x9(shift_3), );
 
-DEFINE_SLICE_SEQ(shift_seq,
-    SLICE23x9(shift_0), SLICE23x9(shift_1), SLICE23x9(shift_2), SLICE23x9(shift_3)
-);
-
-DEFINE_SLICE_SEQ(ctrl_seq,
-    SLICE21x9(ctrl_0), SLICE21x9(ctrl_1), SLICE21x9(ctrl_2), SLICE21x9(ctrl_3)
-);
+DEFINE_SLICE_SEQ(ctrl, SLICE33x9(ctrl_0), SLICE33x9(ctrl_1), SLICE33x9(ctrl_2), SLICE33x9(ctrl_3), );
 
 // ============================================================================
 // Modern Unified Animation System
 // ============================================================================
 
-enum { LAYER_COUNT = 7 };
+static const unified_anim_config_t qwerty_config        = UNIFIED_TOGGLE_CONFIG(&qwerty, 1, 11, BLEND_ADDITIVE);
+static const unified_anim_config_t gaming_config        = UNIFIED_TOGGLE_CONFIG(&gaming, 1, 17, BLEND_ADDITIVE);
+static const unified_anim_config_t unicode_layer_config = UNIFIED_TOGGLE_CONFIG(&unicode, 1, 23, BLEND_ADDITIVE);
+static const unified_anim_config_t symbol_config        = UNIFIED_TOGGLE_CONFIG(&symbol, 57, 11, BLEND_ADDITIVE);
+static const unified_anim_config_t navigation_config    = UNIFIED_TOGGLE_CONFIG(&navigation, 41, 17, BLEND_ADDITIVE);
+static const unified_anim_config_t function_config      = UNIFIED_TOGGLE_CONFIG(&function, 49, 23, BLEND_ADDITIVE);
 
-static const slice_seq_t *const layer_seq_map[LAYER_COUNT] = {
-    [0] = &qwerty, [1] = &game, [2] = &unicode, [3] = &num, [4] = &nav, [5] = &func, [6] = &task,
-};
-
-static const unified_anim_config_t layer_transition_config = {
-    .seq           = 0,
-    .behavior      = ANIM_LAYER_TRANSITION,
-    .steady        = STEADY_LAST,
-    .blend         = BLEND_ADDITIVE,
-    .x             = 56,
-    .y             = 0,
-    .run_boot_anim = false,
-    .seq_map       = layer_seq_map,
-    .state_count   = LAYER_COUNT,
-};
-
-// Layer frame animation (bootrev pattern - boot then reverse-out-back on trigger)
-static const unified_anim_config_t layer_frame_config =
-    UNIFIED_BOOTREV_CONFIG(&layer_frame, 42, 0, true);
-
-// Boot animations (oneshot pattern - run once and stay at end)
-static const unified_anim_config_t caps_frame_config =
-    UNIFIED_ONESHOT_CONFIG(&caps_frame_seq, 0, 0, STEADY_LAST, true);
-static const unified_anim_config_t mods_frame_config =
-    UNIFIED_ONESHOT_CONFIG(&mods_frame_seq, 0, 16, STEADY_LAST, true);
-
-// WPM animations (slave screen)
-static const unified_anim_config_t wpm_frame_config =
-    UNIFIED_ONESHOT_CONFIG(&wpm_frame_seq, 0, 0, STEADY_LAST, true);
+static const unified_anim_config_t boot_config = UNIFIED_BOOTREV_CONFIG(&boot, 0, 0, true);
 
 // Horizon
-static const unified_anim_config_t horizon_config = UNIFIED_LOOP_CONFIG(&horizon_seq, 0, 0, STEADY_LAST, true);
+static const unified_anim_config_t horizon_config = UNIFIED_LOOP_CONFIG(&horizon, 0, 0, STEADY_LAST, true);
 
 // Modifier animations (toggle pattern - smooth on/off transitions)
-static const unified_anim_config_t caps_config =
-    UNIFIED_TOGGLE_CONFIG(&caps_seq, 10, 2, BLEND_ADDITIVE);
-static const unified_anim_config_t super_config =
-    UNIFIED_TOGGLE_CONFIG(&super_seq, 9, 22, BLEND_OPAQUE);
-static const unified_anim_config_t alt_config =
-    UNIFIED_TOGGLE_CONFIG(&alt_seq, 35, 22, BLEND_OPAQUE);
-static const unified_anim_config_t shift_config =
-    UNIFIED_TOGGLE_CONFIG(&shift_seq, 53, 22, BLEND_OPAQUE);
-static const unified_anim_config_t ctrl_config =
-    UNIFIED_TOGGLE_CONFIG(&ctrl_seq, 77, 22, BLEND_OPAQUE);
+static const unified_anim_config_t super_config = UNIFIED_TOGGLE_CONFIG(&super, 0, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t alt_config   = UNIFIED_TOGGLE_CONFIG(&alt, 37, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t shift_config = UNIFIED_TOGGLE_CONFIG(&shift, 64, 0, BLEND_ADDITIVE);
+static const unified_anim_config_t ctrl_config  = UNIFIED_TOGGLE_CONFIG(&ctrl, 95, 0, BLEND_ADDITIVE);
 
 // Runtime instances
-static unified_anim_t layer_transition_anim;
+static unified_anim_t qwerty_anim, gaming_anim, unicode_anim, symbol_anim, navigation_anim, function_anim;
 
 // Frame and boot animations
-static unified_anim_t layer_frame_anim;
-static unified_anim_t caps_frame_anim, mods_frame_anim;
-static unified_anim_t wpm_frame_anim;
+static unified_anim_t boot_anim;
 static unified_anim_t horizon_anim;
 
 // Modifier animations (NOW WORKING!)
-static unified_anim_t caps_anim, super_anim, alt_anim, shift_anim, ctrl_anim;
+static unified_anim_t super_anim, alt_anim, shift_anim, ctrl_anim;
 
-// State management
-static uint8_t current_layer      = 0;
-static uint8_t last_layer_request = 0;
+static unified_anim_t *const layer_anims[LAYER_COUNT] = {
+    [_BASE] = &qwerty_anim, [_GAME] = &gaming_anim, [_UNICODE] = &unicode_anim, [_NUM] = &symbol_anim, [_NAV] = &navigation_anim, [_FUNC] = &function_anim,
+};
+
+static const unified_anim_config_t *const layer_configs[LAYER_COUNT] = {
+    [_BASE] = &qwerty_config, [_GAME] = &gaming_config, [_UNICODE] = &unicode_layer_config, [_NUM] = &symbol_config, [_NAV] = &navigation_config, [_FUNC] = &function_config,
+};
 
 static inline bool layer_index_valid(uint8_t layer) {
     return layer < LAYER_COUNT;
@@ -205,10 +125,6 @@ static inline bool layer_index_valid(uint8_t layer) {
 // ============================================================================
 // Modifier State Detection (same as before)
 // ============================================================================
-
-static bool is_caps_active(void) {
-    return host_keyboard_led_state().caps_lock || is_caps_word_on();
-}
 
 static bool is_super_active(void) {
     uint8_t mods = get_mods() | get_oneshot_mods();
@@ -234,63 +150,73 @@ static bool is_ctrl_active(void) {
 // Static Elements
 // ============================================================================
 
-static const slice_t SLICE_logo = SLICE22x16(logo);
-
-static const slice_t SLICE_digit_0 = SLICE8x16(digit_0);
-static const slice_t SLICE_digit_1 = SLICE8x16(digit_1);
-static const slice_t SLICE_digit_2 = SLICE8x16(digit_2);
-static const slice_t SLICE_digit_3 = SLICE8x16(digit_3);
-static const slice_t SLICE_digit_4 = SLICE8x16(digit_4);
-static const slice_t SLICE_digit_5 = SLICE8x16(digit_5);
-static const slice_t SLICE_digit_6 = SLICE8x16(digit_6);
-static const slice_t SLICE_digit_7 = SLICE8x16(digit_7);
-static const slice_t SLICE_digit_8 = SLICE8x16(digit_8);
-static const slice_t SLICE_digit_9 = SLICE8x16(digit_9);
+static const slice_t         SLICE_digit_0     = SLICE5x8(digit_0);
+static const slice_t         SLICE_digit_1     = SLICE5x8(digit_1);
+static const slice_t         SLICE_digit_2     = SLICE5x8(digit_2);
+static const slice_t         SLICE_digit_3     = SLICE5x8(digit_3);
+static const slice_t         SLICE_digit_4     = SLICE5x8(digit_4);
+static const slice_t         SLICE_digit_5     = SLICE5x8(digit_5);
+static const slice_t         SLICE_digit_6     = SLICE5x8(digit_6);
+static const slice_t         SLICE_digit_7     = SLICE5x8(digit_7);
+static const slice_t         SLICE_digit_8     = SLICE5x8(digit_8);
+static const slice_t         SLICE_digit_9     = SLICE5x8(digit_9);
+static const uint8_t PROGMEM blank_digit[]     = {0x00, 0x00, 0x00, 0x00, 0x00};
+static const slice_t         SLICE_blank_digit = SLICE5x8(blank_digit);
 
 static const slice_t *const WPM_DIGIT_SLICES[] = {
-    &SLICE_digit_0, &SLICE_digit_1, &SLICE_digit_2, &SLICE_digit_3, &SLICE_digit_4,
-    &SLICE_digit_5, &SLICE_digit_6, &SLICE_digit_7, &SLICE_digit_8, &SLICE_digit_9,
+    &SLICE_digit_0, &SLICE_digit_1, &SLICE_digit_2, &SLICE_digit_3, &SLICE_digit_4, &SLICE_digit_5, &SLICE_digit_6, &SLICE_digit_7, &SLICE_digit_8, &SLICE_digit_9,
 };
 
-#define WPM_DIGIT_WIDTH 8
-#define WPM_DIGIT_HEIGHT 16
-#define WPM_AREA_X 83
-#define WPM_AREA_Y 8
-#define WPM_AREA_WIDTH 32
+#define WPM_DIGIT_WIDTH 5
+#define WPM_DIGIT_HEIGHT 8
+#define WPM_DIGIT_SPACING 1
+#define WPM_AREA_X 109
+#define WPM_AREA_Y 22
+#define WPM_AREA_WIDTH 17
+
+static void draw_wpm_slice_pixels(const slice_t *s, uint8_t x_px, uint8_t y_px) {
+    if (!slice_is_valid(s)) {
+        return;
+    }
+
+    uint8_t width  = slice_width_px(s);
+    uint8_t height = slice_height_px(s);
+
+    for (uint8_t x = 0; x < width; x++) {
+        uint8_t column = pgm_read_byte(s->data + x);
+        for (uint8_t y = 0; y < height; y++) {
+            oled_write_pixel((uint8_t)(x_px + x), (uint8_t)(y_px + y), (column & (1u << y)) != 0);
+        }
+    }
+}
 
 static void draw_wpm_digits(uint16_t raw_wpm) {
+    const slice_t *slots[3] = {
+        &SLICE_blank_digit,
+        &SLICE_blank_digit,
+        &SLICE_blank_digit,
+    };
+
     // Clamp to what fits in the 3-digit area
     if (raw_wpm > 999) {
         raw_wpm = 999;
     }
 
-    uint8_t digits[3];
-    uint8_t count = 0;
     uint16_t wpm = raw_wpm;
 
     if (wpm >= 100) {
-        digits[0] = wpm / 100;
-        digits[1] = (wpm / 10) % 10;
-        digits[2] = wpm % 10;
-        count     = 3;
+        slots[0] = WPM_DIGIT_SLICES[wpm / 100];
+        slots[1] = WPM_DIGIT_SLICES[(wpm / 10) % 10];
+        slots[2] = WPM_DIGIT_SLICES[wpm % 10];
     } else if (wpm >= 10) {
-        digits[0] = wpm / 10;
-        digits[1] = wpm % 10;
-        count     = 2;
+        slots[1] = WPM_DIGIT_SLICES[wpm / 10];
+        slots[2] = WPM_DIGIT_SLICES[wpm % 10];
     } else {
-        digits[0] = wpm;
-        count     = 1;
+        slots[2] = WPM_DIGIT_SLICES[wpm];
     }
 
-    // Clear previous digits then right-align the new value
-    clear_rect(WPM_AREA_X, WPM_AREA_Y, WPM_AREA_WIDTH, WPM_DIGIT_HEIGHT);
-
-    uint8_t start_x = WPM_AREA_X + (WPM_AREA_WIDTH - (count * WPM_DIGIT_WIDTH));
-    for (uint8_t i = 0; i < count; i++) {
-        uint8_t digit = digits[i];
-        if (digit < (sizeof(WPM_DIGIT_SLICES) / sizeof(WPM_DIGIT_SLICES[0]))) {
-            draw_slice_px(WPM_DIGIT_SLICES[digit], (uint8_t)(start_x + (i * WPM_DIGIT_WIDTH)), WPM_AREA_Y);
-        }
+    for (uint8_t i = 0; i < ARRAY_SIZE(slots); i++) {
+        draw_wpm_slice_pixels(slots[i], (uint8_t)(WPM_AREA_X + (i * (WPM_DIGIT_WIDTH + WPM_DIGIT_SPACING))), WPM_AREA_Y);
     }
 }
 
@@ -300,22 +226,24 @@ static void draw_wpm_digits(uint16_t raw_wpm) {
 
 void init_widgets(void) {
     uint32_t now = timer_read32();
+    uint8_t  active_layer;
 
-    // Initialize layer transition controller
-    current_layer = get_highest_layer(layer_state);
-    if (!layer_index_valid(current_layer)) {
-        current_layer = 0;
+    clear_rect(TOP_STRIP_X, TOP_STRIP_Y, TOP_STRIP_WIDTH, TOP_STRIP_HEIGHT);
+    clear_rect(LAYER_REGION_X, LAYER_REGION_Y, LAYER_REGION_WIDTH, LAYER_REGION_HEIGHT);
+
+    active_layer = get_highest_layer(layer_state);
+    if (!layer_index_valid(active_layer)) {
+        active_layer = _BASE;
     }
-    last_layer_request = current_layer;
-    unified_anim_init(&layer_transition_anim, &layer_transition_config, current_layer, now);
+
+    for (uint8_t layer = 0; layer < LAYER_COUNT; layer++) {
+        unified_anim_init(layer_anims[layer], layer_configs[layer], layer == active_layer ? 1 : 0, now);
+    }
 
     // Initialize frame and boot animations
-    unified_anim_init(&layer_frame_anim, &layer_frame_config, 0, now);
-    unified_anim_init(&caps_frame_anim, &caps_frame_config, 0, now);
-    unified_anim_init(&mods_frame_anim, &mods_frame_config, 0, now);
+    unified_anim_init(&boot_anim, &boot_config, 0, now);
 
     // Initialize modifier animations (NOW WORKING!)
-    unified_anim_init(&caps_anim, &caps_config, is_caps_active() ? 1 : 0, now);
     unified_anim_init(&super_anim, &super_config, is_super_active() ? 1 : 0, now);
     unified_anim_init(&alt_anim, &alt_config, is_alt_active() ? 1 : 0, now);
     unified_anim_init(&shift_anim, &shift_config, is_shift_active() ? 1 : 0, now);
@@ -332,36 +260,33 @@ void tick_widgets(void) {
     // Resolve desired layer with bounds checking
     uint8_t new_layer = get_highest_layer(layer_state);
     if (!layer_index_valid(new_layer)) {
-        new_layer = 0; // Default to layer 0 if invalid
+        new_layer = _BASE;
     }
-
-    if (new_layer != last_layer_request) {
-        if (unified_anim_boot_done(&layer_frame_anim)) {
-            unified_anim_trigger(&layer_frame_anim, 0, now);
-        }
-        last_layer_request = new_layer;
-    }
-
-    unified_anim_trigger(&layer_transition_anim, new_layer, now);
-    current_layer = layer_transition_anim.current_state;
 
     // Update frame animations (background elements) - MUST render BEFORE layer animations
-    unified_anim_render(&caps_frame_anim, now);
-    unified_anim_render(&mods_frame_anim, now);
-    unified_anim_render(&layer_frame_anim, now);
+    unified_anim_render(&boot_anim, now);
 
-    // Render current layer transition/steady frame
-    unified_anim_render(&layer_transition_anim, now);
+    // The layer label and modifier sprites share a top strip and overlap slightly.
+    // Redraw the entire strip from a clean slate so black pixels in later sprites
+    // can intentionally erase earlier ones.
+    clear_rect(TOP_STRIP_X, TOP_STRIP_Y, TOP_STRIP_WIDTH, TOP_STRIP_HEIGHT);
+
+    // Layer labels are independently positioned widgets, so redraw their full
+    // shared region before rendering each toggle state.
+    clear_rect(LAYER_REGION_X, LAYER_REGION_Y, LAYER_REGION_WIDTH, LAYER_REGION_HEIGHT);
+
+    for (uint8_t layer = 0; layer < LAYER_COUNT; layer++) {
+        unified_anim_trigger(layer_anims[layer], layer == new_layer ? 1 : 0, now);
+        unified_anim_render(layer_anims[layer], now);
+    }
 
     // Update modifier animations with current state (NOW WORKING!)
-    unified_anim_trigger(&caps_anim, is_caps_active() ? 1 : 0, now);
     unified_anim_trigger(&super_anim, is_super_active() ? 1 : 0, now);
     unified_anim_trigger(&alt_anim, is_alt_active() ? 1 : 0, now);
     unified_anim_trigger(&shift_anim, is_shift_active() ? 1 : 0, now);
     unified_anim_trigger(&ctrl_anim, is_ctrl_active() ? 1 : 0, now);
 
-    // Render modifier animations (foreground elements with additive blending)
-    unified_anim_render(&caps_anim, now);
+    // Render modifier animations in draw order across the cleared top strip.
     unified_anim_render(&super_anim, now);
     unified_anim_render(&alt_anim, now);
     unified_anim_render(&shift_anim, now);
@@ -383,17 +308,11 @@ void draw_horizon(void) {
 }
 
 void draw_wpm_frame(void) {
-    uint32_t now = timer_read32();
-
     // Initialize WPM animations on first call (slave screen only)
     static bool wpm_initialized = false;
     if (!wpm_initialized) {
-        unified_anim_init(&wpm_frame_anim, &wpm_frame_config, 0, now);
         wpm_initialized = true;
     }
-
-    // Render WPM animations
-    unified_anim_render(&wpm_frame_anim, now);
 
     // Draw numeric WPM (right-aligned, no leading zeros)
     draw_wpm_digits(wpm_stats_get_current());
@@ -405,17 +324,10 @@ void draw_wpm_frame(void) {
 
 bool is_boot_animation_complete(void) {
     // Check if all boot animations are complete
-    return unified_anim_boot_done(&caps_frame_anim) &&
-           unified_anim_boot_done(&mods_frame_anim) &&
-           unified_anim_boot_done(&layer_frame_anim);
+    return unified_anim_boot_done(&boot_anim);
 }
 
-void trigger_layer_transition_effect(void) {
-    uint32_t now = timer_read32();
-    if (unified_anim_boot_done(&layer_frame_anim)) {
-        unified_anim_trigger(&layer_frame_anim, 0, now);
-    }
-}
+void trigger_layer_transition_effect(void) {}
 
 // ============================================================================
 // Migration Notes
