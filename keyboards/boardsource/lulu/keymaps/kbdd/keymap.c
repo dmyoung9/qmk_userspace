@@ -17,9 +17,9 @@
 #define ONESHOT_SHIFT_LED_INDEX 47
 
 // Task layer timeout functionality
-static bool task_layer_active = false;
-static uint32_t task_layer_timer = 0;
-#define TASK_LAYER_TIMEOUT 3000  // 3000ms timeout
+// static bool task_layer_active = false;
+// static uint32_t task_layer_timer = 0;
+// #define TASK_LAYER_TIMEOUT 3000  // 3000ms timeout
 
 static bool oneshot_shift_active = false;
 
@@ -52,7 +52,7 @@ const indicator_t PROGMEM indicators[] = {
     KEYCODE_INDICATOR(MOD_HRC, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HRS, HUE(HUE_CYAN)),
     KEYCODE_INDICATOR(MOD_HRA, HUE(HUE_CYAN)),
-    LAYER_INDICATOR(_TASK, HUE(HUE_PURPLE)),
+    // LAYER_INDICATOR(_TASK, HUE(HUE_PURPLE)),
     LAYER_INDICATOR(_GAME, HUE(HUE_GREEN)),
 };
 
@@ -186,13 +186,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                _______, _______, _______, _______, _______, _______, _______, _______
 ),
 
-[_TASK] = LAYOUT(
-    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______, KC_ESC ,  KC_TAB, _______, _______, _______, _______, _______, _______,
-                               _______, _______, _______, _______, _______, KC_ENT , _______, _______
-),
+// [_TASK] = LAYOUT(
+//     _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+//     _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+//     _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+//     _______, _______, _______, _______, _______, _______, KC_ESC ,  KC_TAB, _______, _______, _______, _______, _______, _______,
+//                                _______, _______, _______, _______, _______, KC_ENT , _______, _______
+// ),
 };
 
 #ifdef ENCODER_MAP_ENABLE
@@ -203,7 +203,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [3] = { ENCODER_CCW_CW(S(KC_TAB), KC_TAB ) },
     [4] = { ENCODER_CCW_CW(KC_UP    , KC_DOWN) },
     [5] = { ENCODER_CCW_CW(_______  , _______) },
-    [6] = { ENCODER_CCW_CW(KC_LEFT  , KC_RGHT) },
+    // [6] = { ENCODER_CCW_CW(KC_LEFT  , KC_RGHT) },
 };
 
 const uint8_t encoder_leds[NUM_ENCODERS] = { 65 };
@@ -214,7 +214,7 @@ const color_t PROGMEM encoder_ledmap[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [3] = { { HUE(HUE_YELLOW), HUE(HUE_YELLOW) } },
     [4] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
     [5] = { { TRNS_COLOR, TRNS_COLOR } },
-    [6] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
+    // [6] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
 };
 #endif
 
@@ -275,11 +275,11 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 void matrix_scan_user(void) {
-    if (task_layer_active && timer_elapsed32(task_layer_timer) > TASK_LAYER_TIMEOUT) {
-        tap_code(KC_ESC);
-        layer_off(_TASK);
-        task_layer_active = false;
-    }
+    // if (task_layer_active && timer_elapsed32(task_layer_timer) > TASK_LAYER_TIMEOUT) {
+    //     tap_code(KC_ESC);
+    //     layer_off(_TASK);
+    //     task_layer_active = false;
+    // }
 
     if (slug_lock_active && timer_elapsed32(slug_lock_timer) > SLUG_LOCK_TIMEOUT) {
         slug_lock_active = false;
@@ -288,9 +288,9 @@ void matrix_scan_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
-        if (task_layer_active) {
-            task_layer_timer = timer_read32();
-        }
+        // if (task_layer_active) {
+        //     task_layer_timer = timer_read32();
+        // }
 
         if (slug_lock_active) {
             slug_lock_timer = timer_read32();
@@ -304,14 +304,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
-        case CUS_TSK:
-            if (record->event.pressed) {
-                tap_code16(G(KC_TAB));
-                layer_on(_TASK);
-                task_layer_active = true;
-                task_layer_timer = timer_read32();
-            }
-            return false;
+        // case CUS_TSK:
+        //     if (record->event.pressed) {
+        //         tap_code16(G(KC_TAB));
+        //         layer_on(_TASK);
+        //         task_layer_active = true;
+        //         task_layer_timer = timer_read32();
+        //     }
+        //     return false;
         case CUS_SLK:
             if (record->event.pressed) {
                 if (slug_lock_active) {
@@ -346,13 +346,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
-        case KC_ESC:
-        case KC_ENT:
-            if (record->event.pressed && task_layer_active) {
-                layer_off(_TASK);
-                task_layer_active = false;
-            }
-            break;
+        // case KC_ESC:
+        // case KC_ENT:
+        //     if (record->event.pressed && task_layer_active) {
+        //         layer_off(_TASK);
+        //         task_layer_active = false;
+        //     }
+        //     break;
         case KC_MINS:
             if (record->event.pressed && slug_lock_active) {
                 if (is_caps_word_on()) {
