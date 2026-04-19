@@ -399,11 +399,6 @@ void draw_wpm_frame(void) {
     draw_wpm_digits(wpm_stats_get_current());
 }
 
-void draw_logo(void) {
-    // Draw static logo
-    draw_slice_px(&SLICE_logo, 106, 16);
-}
-
 // ============================================================================
 // Enhanced API Functions
 // ============================================================================

@@ -249,7 +249,7 @@ bool oled_task_user(void) {
         draw_horizon();
     } else {
         tick_widgets();
-        draw_logo();
+        draw_wpm_frame();
     }
 
     return false;
