@@ -24,6 +24,7 @@
 // Modern Slice Macros (using comprehensive oled_slice.h system)
 // ============================================================================
 
+#define SLICE1x8(p) SLICE_CUSTOM_PX(p, 1, 8)
 #define SLICE5x8(p) SLICE_CUSTOM_PX(p, 5, 8)
 
 // Layer slice macros (7px high) - using modern SLICE_CUSTOM_PX
@@ -149,6 +150,10 @@ static bool is_ctrl_active(void) {
 // ============================================================================
 // Static Elements
 // ============================================================================
+
+static const slice_t SLICE_colon = SLICE1x8(colon);
+static const slice_t SLICE_am    = SLICE5x8(am);
+static const slice_t SLICE_pm    = SLICE5x8(pm);
 
 static const slice_t         SLICE_digit_0     = SLICE5x8(digit_0);
 static const slice_t         SLICE_digit_1     = SLICE5x8(digit_1);

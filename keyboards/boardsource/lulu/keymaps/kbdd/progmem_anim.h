@@ -20,3 +20,4 @@ extern const uint8_t PROGMEM shift_0[], shift_1[], shift_2[], shift_3[];
 extern const uint8_t PROGMEM ctrl_0[], ctrl_1[], ctrl_2[], ctrl_3[];
 
 extern const uint8_t PROGMEM digit_0[], digit_1[], digit_2[], digit_3[], digit_4[], digit_5[], digit_6[], digit_7[], digit_8[], digit_9[];
+extern const uint8_t PROGMEM colon[], am[], pm[];

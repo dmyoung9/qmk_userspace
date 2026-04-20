@@ -854,3 +854,28 @@ const uint8_t PROGMEM digit_8[] = {
 const uint8_t PROGMEM digit_9[] = {
     0x46, 0x89, 0x89, 0x89, 0x7e,
 };
+
+// clock
+// 'colon', 1x8px
+// draw at (92, 5) and (106, 5)
+const uint8_t PROGMEM colon[] = {
+    0x24,
+};
+
+// 'a', 5x8px
+// draw at (120, 5) for AM
+const uint8_t PROGMEM am[] = {
+    0xf8, 0x28, 0x28, 0x28, 0xf8,
+};
+
+// 'p', 5x8px
+// draw at (120, 5) for PM
+const uint8_t PROGMEM pm[] = {
+    0xf8, 0x28, 0x28, 0x28, 0x38,
+};
+
+// digit groups at:
+// (80, 5) + (86, 5)
+// (94, 5) + (100, 5)
+// (108, 5) + (114, 5)
+// %I:%M:%S%P
