@@ -1,0 +1,17 @@
+SRC += anim.c progmem_anim.c progmem_horizon.c
+
+CONVERT_TO = blok
+RAW_ENABLE = yes
+ENCODER_ENABLE = yes
+ENCODER_MAP_ENABLE = yes
+SPLIT_KEYBOARD = yes
+KEYCODE_STRING_ENABLE = yes
+WPM_ENABLE = yes
+CAPS_WORD_ENABLE = yes
+OLED_ENABLE = yes
+TAP_DANCE_ENABLE = yes
+COMBO_ENABLE = no
+TRI_LAYER_ENABLE = yes
+
+UNICODEMAP_ENABLE = yes
+UNICODE_COMMON = yes

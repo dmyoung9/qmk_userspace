@@ -1,0 +1,20 @@
+#pragma once
+
+#include <stdint.h>
+#include QMK_KEYBOARD_H
+#include "progmem_anim.h"
+#include "oled_utils.h"
+#include "oled_unified_anim.h"  // Modern unified animation system
+#include "oled_declarative.h"
+
+// Modern unified animation system
+void init_widgets(void);
+void draw_horizon(void);
+void draw_wpm_frame(void);
+void tick_widgets(void);
+void sync_clock(uint32_t timestamp);
+void draw_clock(void);
+
+// Enhanced features
+bool is_boot_animation_complete(void);
+void trigger_layer_transition_effect(void);

@@ -1,0 +1,486 @@
+#include <stdbool.h>
+#include <stdint.h>
+
+#include QMK_KEYBOARD_H
+
+#include "constants.h"
+#include "anim.h"
+
+#include "wpm_oled.h"
+#include "oled_utils.h"
+#include "dmyoung9/encoder_ledmap.h"
+#include "elpekenin/indicators.h"
+#include "elpekenin/colors.h"
+
+#ifdef SPLIT_KEYBOARD
+    #include "transactions.h"
+#endif
+#ifdef RAW_ENABLE
+    #include "raw_hid.h"
+#endif
+
+#define CAPS_WORD_LED_INDEX 24
+#define SLUG_LOCK_LED_INDEX 34
+#define ONESHOT_SHIFT_LED_INDEX 47
+
+// Task layer timeout functionality
+// static bool task_layer_active = false;
+// static uint32_t task_layer_timer = 0;
+// #define TASK_LAYER_TIMEOUT 3000  // 3000ms timeout
+
+static bool oneshot_shift_active = false;
+
+// Slug lock timeout functionality
+static bool slug_lock_active = false;
+static uint32_t slug_lock_timer = 0;
+#define SLUG_LOCK_TIMEOUT 3000  // 3000ms timeout
+
+#ifdef SPLIT_KEYBOARD
+static uint32_t last_sync_timestamp = 0;
+static bool     sync_pending        = false;
+#endif
+
+const indicator_t PROGMEM indicators[] = {
+    // Initialize indicators
+    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NUM, HUE(HUE_YELLOW)),
+    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_NAV, HUE(HUE_PURPLE)),
+    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_FUNC, HUE(HUE_ORANGE)),
+    ASSIGNED_KEYCODE_IN_LAYER_INDICATOR(_UNICODE, HUE(HUE_BLUE)),
+    KEYCODE_INDICATOR(QK_BOOT, HUE(HUE_RED)),
+    KEYCODE_INDICATOR(CW_TOGG, HUE(HUE_MAGENTA)),
+    KEYCODE_INDICATOR(NUM, WHITE_COLOR),
+    KEYCODE_INDICATOR(KC_ESC, HUE(HUE_MAGENTA)),
+    KEYCODE_INDICATOR(UNI_OFF, HUE(HUE_ORANGE)),
+    KEYCODE_INDICATOR(UNI_ON, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(TD_FUNC, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(TD_BTTG, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(NAV, WHITE_COLOR),
+    KEYCODE_INDICATOR(KC_W, HUE(HUE_MAGENTA)),
+    KEYCODE_INDICATOR(QWE_HLG, HUE(HUE_MAGENTA)),
+    KEYCODE_INDICATOR(QWE_HLA, HUE(HUE_MAGENTA)),
+    KEYCODE_INDICATOR(QWE_HLS, HUE(HUE_MAGENTA)),
+    KEYCODE_INDICATOR(CDH_HLG, HUE(HUE_MAGENTA)),
+    KEYCODE_INDICATOR(CDH_HLA, HUE(HUE_MAGENTA)),
+    KEYCODE_INDICATOR(CDH_HLS, HUE(HUE_MAGENTA)),
+    KEYCODE_INDICATOR(KC_H, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(QWE_HRC, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(QWE_HRS, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(QWE_HRA, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(CDH_HRC, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(CDH_HRS, HUE(HUE_CYAN)),
+    KEYCODE_INDICATOR(CDH_HRA, HUE(HUE_CYAN)),
+};
+
+#ifdef UNICODE_SELECTED_MODES
+enum unicode_names {
+    DR,     LH,     DL, //   ┏ ━ ┓
+            DH,         //     ┳
+    LV, VR, VH,    VL,  // ┃ ┣ ╋ ┫
+            UH,         //     ┻
+    UR,            UL,  //   ┗   ┛
+    BF, BD, BM,    BL,  // █ ▓ ▒ ░
+
+    DRD,     LHD,     DLD, //   ┏ ━ ┓
+            DHD,         //     ┳
+    LVD, VRD, VHD,    VLD,  // ┃ ┣ ╋ ┫
+            UHD,         //     ┻
+    URD,            ULD,  //   ┗   ┛
+
+    VAR,
+
+    HUNDO, THUMBS_UP, THUMBS_DOWN, EYES,
+    STAR, FIRE, TADA, SPARKLES, THREAD, LOCK,
+    PROHIBITED, WARNING, CROSS, CHECK, CIRCLE,
+    BRAIN, LIGHTBULB, SWEAT_SMILE, ROFL, SMILE,
+    GRIMACE,
+};
+
+const uint32_t PROGMEM unicode_map[] = {
+    // BOX DRAWING
+    [DR] = 0x250C,  // ┏
+    [LH] = 0x2500,  // ━
+    [DL] = 0x2510,  // ┓
+    [DH] = 0x252F,  // ┳
+    [LV] = 0x2502,  // ┃
+    [VR] = 0x251C,  // ┣
+    [VH] = 0x253C,  // ╋
+    [VL] = 0x2524,  // ┫
+    [UH] = 0x2534,  // ┻
+    [UR] = 0x2514,  // ┗
+    [UL] = 0x2518,  // ┛
+    [DRD] = 0x2554,  // ┏
+    [LHD] = 0x2550,  // ━
+    [DLD] = 0x2557,  // ┓
+    [DHD] = 0x2566,  // ┳
+    [LVD] = 0x2551,  // ┃
+    [VRD] = 0x2560,  // ┣
+    [VHD] = 0x256C,  // ╋
+    [VLD] = 0x2563,  // ┫
+    [UHD] = 0x2569,  // ┻
+    [URD] = 0x255A,  // ┗
+    [ULD] = 0x255D,  // ┛
+    [BF] = 0x2588,  // █
+    [BD] = 0x2593,  // ▓
+    [BM] = 0x2592,  // ▒
+    [BL] = 0x2591,  // ░
+
+    [VAR] = 0xFE0F,
+
+    // EMOJI
+    [HUNDO] = 0x1F4AF,
+    [THUMBS_UP] = 0x1F44D,
+    [THUMBS_DOWN] = 0x1F44E,
+    [EYES] = 0x1F440,
+    [STAR] = 0x1F31F,
+    [FIRE] = 0x1F525,
+    [TADA] = 0x1F389,
+    [SPARKLES] = 0x2728,
+    [THREAD] = 0x1F9F5,
+    [LOCK] = 0x1F512,
+    [PROHIBITED] = 0x1F6AB,
+    [WARNING] = 0x26A0,
+    [CROSS] = 0x274C,
+    [CHECK] = 0x2714,
+    [CIRCLE] = 0x2B55,
+    [BRAIN] = 0x1F9E0,
+    [LIGHTBULB] = 0x1F4A1,
+    [SWEAT_SMILE] = 0x1F605,
+    [ROFL] = 0x1F923,
+    [SMILE] = 0x1F60A,
+    [GRIMACE] = 0x1F62C,
+};
+#endif
+
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+// ----- STANDARD LAYERS -----
+[_QWERTY] = LAYOUT(
+    KC_GRV , KC_1   , KC_2   , KC_3   , KC_4   , KC_5   ,                   KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS,
+    KC_BSLS, KC_Q   , KC_W   , KC_E   , KC_R   , KC_T   ,                   KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , UNI_ON ,
+    KC_TAB , QWE_HLG, QWE_HLA, QWE_HLS, QWE_HLC, KC_G   ,                   KC_H   , QWE_HRC, QWE_HRS, QWE_HRA, QWE_HRG, KC_QUOT,
+    CW_TOGG, KC_Z   , KC_X   , KC_C   , KC_V   , KC_B   , KC_ESC , TD_BTTG, KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, TD_FUNC,
+                               CUS_SLK, NUM    , KC_DEL , KC_BSPC, KC_SPC , KC_ENT , NAV    , CUS_GPT
+),
+
+[_COLEMAK] = LAYOUT(
+    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, KC_Q   , KC_W   , KC_F   , KC_P   , KC_B   ,                   KC_J   , KC_L   , KC_U   , KC_Y   , KC_SCLN, _______,
+    _______, CDH_HLG, CDH_HLA, CDH_HLS, CDH_HLC, KC_G   ,                   KC_B   , CDH_HRC, CDH_HRS, CDH_HRA, CDH_HRG, _______,
+    _______, KC_Z   , KC_X   , KC_C   , KC_D   , KC_V   , _______, _______, KC_K   , KC_H   , KC_COMM, KC_DOT , KC_SLSH, _______,
+                               _______, _______, _______, _______, _______, _______, _______, _______
+),
+
+[_UNICODE] = LAYOUT(
+    KC_GRV,      UM(BL)       , UM(BM)     , UM(BD)      , UM(BF)      , XXXXXXX     ,                   UM(SMILE)      , UM(ROFL) , UM(SWEAT_SMILE), UM(GRIMACE)   , XXXXXXX      , UM(VAR),
+    UP(LV, LVD), UP(VH, VHD)  , XXXXXXX    , UP(DR, DRD) , UP(DH, DHD) , UP(DL, DLD) ,                   UM(THUMBS_DOWN), UM(BRAIN), UM(LOCK)       , UM(PROHIBITED), UM(WARNING)  , UNI_OFF,
+    KC_LSFT,     UM(CHECK)    , UM(CIRCLE) , UP(VR, VRD) , UP(LH, LHD) , UP(VL, VLD) ,                   UM(THUMBS_UP)  , UM(EYES) , UM(LIGHTBULB)  , UM(TADA)      , UM(SPARKLES) , KC_RSFT,
+    XXXXXXX,     UM(HUNDO)    , UM(CROSS)  , UP(UR, URD) , UP(UH, UHD) , UP(UL, ULD) , KC_ESC , XXXXXXX, XXXXXXX        , UM(STAR) , UM(FIRE)       , UM(THREAD)    , XXXXXXX      , XXXXXXX,
+                                             XXXXXXX     , XXXXXXX     , KC_DEL      , KC_BSPC, KC_SPC , KC_ENT         , XXXXXXX  , XXXXXXX
+),
+
+[_NUM] = LAYOUT(
+    _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, XXXXXXX, XXXXXXX,
+    _______, G_MIC  , G_CAM  , _______, _______, _______,                   KC_PMNS, KC_LPRN, KC_RPRN, KC_PSLS, XXXXXXX, XXXXXXX,
+    _______, _______, _______, _______, _______, _______,                   KC_PPLS, KC_LBRC, KC_RBRC, KC_PAST, XXXXXXX, XXXXXXX,
+    _______, _______, _______, _______, _______, _______, G_EMOJI, CUS_TSK, KC_PDOT, KC_LCBR, KC_RCBR, _______, XXXXXXX, XXXXXXX,
+                               _______, _______, _______, _______, KC_P0  , KC_EQL , _______, KC_CALC
+),
+
+[_NAV] = LAYOUT(
+    CUS_CODE,_______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, _______, G_UP   , KC_MYCM, _______, G_SWDSK,                   KC_HOME, KC_PGDN, KC_PGUP, KC_END , _______, _______,
+    _______, G_LEFT , G_DOWN , G_RIGHT, _______, G_START,                   KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
+    _______, _______, _______, _______, _______, G_DESK , _______, _______, _______, _______, _______, _______, _______, _______,
+                               CUS_SNT, _______, _______, _______, _______, _______, _______, _______
+),
+
+[_FUNC] = LAYOUT(
+    QK_BOOT, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, _______, G_REC  , _______,                   G_SNIP , KC_F9  , KC_F10 , KC_F11 , KC_F12 , _______,
+    _______, _______, _______, _______, _______, _______,                   _______, KC_F5  , KC_F6  , KC_F7  , KC_F8  , _______,
+    _______, _______, _______, _______, _______, _______, LUMINO , QWE_CDH, _______, KC_F1  , KC_F2  , KC_F3  , KC_F4  , _______,
+                               _______, _______, _______, _______, _______, _______, _______, _______
+),
+};
+
+#ifdef ENCODER_MAP_ENABLE
+const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
+    [0] = { ENCODER_CCW_CW(KC_VOLD  , KC_VOLU) },
+    [1] = { ENCODER_CCW_CW(KC_VOLD  , KC_VOLU) },
+    [2] = { ENCODER_CCW_CW(KC_BSPC  , UP(LH, LHD)) },
+    [3] = { ENCODER_CCW_CW(S(KC_TAB), KC_TAB ) },
+    [4] = { ENCODER_CCW_CW(KC_UP    , KC_DOWN) },
+    [5] = { ENCODER_CCW_CW(_______  , _______) },
+    // [6] = { ENCODER_CCW_CW(KC_LEFT  , KC_RGHT) },
+};
+
+const uint8_t encoder_leds[NUM_ENCODERS] = { 65 };
+const color_t PROGMEM encoder_ledmap[][NUM_ENCODERS][NUM_DIRECTIONS] = {
+    [0] = { { HUE(HUE_RED), HUE(HUE_GREEN) } },
+    [1] = { { HUE(HUE_RED), HUE(HUE_GREEN) } },
+    [2] = { { TRNS_COLOR, TRNS_COLOR } },
+    [3] = { { HUE(HUE_YELLOW), HUE(HUE_YELLOW) } },
+    [4] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
+    [5] = { { TRNS_COLOR, TRNS_COLOR } },
+    // [6] = { { HUE(HUE_PURPLE), HUE(HUE_PURPLE) } },
+};
+#endif
+
+#ifdef COMBO_ENABLE
+const uint16_t PROGMEM lp_combo[] = {KC_Y, KC_U, COMBO_END};
+const uint16_t PROGMEM rp_combo[] = {KC_N, KC_M, COMBO_END};
+const uint16_t PROGMEM lb_combo[] = {KC_U, KC_I, COMBO_END};
+const uint16_t PROGMEM rb_combo[] = {KC_M, KC_COMM, COMBO_END};
+const uint16_t PROGMEM lc_combo[] = {KC_I, KC_O, COMBO_END};
+const uint16_t PROGMEM rc_combo[] = {KC_COMM, KC_DOT, COMBO_END};
+
+combo_t key_combos[] = {
+    [COMBO_LPAREN] = COMBO(lp_combo, KC_LPRN),   // (
+    [COMBO_RPAREN] = COMBO(rp_combo, KC_RPRN),   // )
+    [COMBO_LBRACK] = COMBO(lb_combo, KC_LBRC),   // [
+    [COMBO_RBRACK] = COMBO(rb_combo, KC_RBRC),   // ]
+    [COMBO_LBRACE] = COMBO(lc_combo, KC_LCBR),   // {
+    [COMBO_RBRACE] = COMBO(rc_combo, KC_RCBR),   // }
+};
+#endif
+
+#ifdef OLED_ENABLE
+bool oled_task_user(void) {
+    if (last_input_activity_elapsed() < OLED_TIMEOUT) {
+        oled_on();
+    } else {
+        oled_off();
+        return false;
+    }
+
+    if (!is_keyboard_master()) {
+        draw_horizon();
+        draw_clock();
+    } else {
+        tick_widgets();
+        draw_wpm_frame();
+    }
+
+    return false;
+}
+
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+    return rotation;  // oriented correctly
+}
+#endif
+
+#ifdef RAW_ENABLE
+void raw_hid_receive(uint8_t *data, uint8_t length) {
+    if (is_keyboard_master()) {
+        // Data format: [0] = 'T', [1..4] = uint32_t timestamp
+        if (data[0] == 'T') {
+            uint32_t timestamp = ((uint32_t)data[1] << 24) | ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 8) | ((uint32_t)data[4]);
+
+#ifdef SPLIT_KEYBOARD
+            last_sync_timestamp = timestamp;
+            sync_pending        = true;
+#endif
+        }
+    }
+}
+#endif
+
+#ifdef SPLIT_KEYBOARD
+void housekeeping_task_user(void) {
+    if (is_keyboard_master() && sync_pending) {
+        if (transaction_rpc_send(CLOCK_SYNC, sizeof(last_sync_timestamp), &last_sync_timestamp)) {
+            sync_pending = false;
+        }
+    }
+}
+#endif
+
+#ifdef SPLIT_KEYBOARD
+void clock_sync_slave_handler(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data) {
+    if (in_buflen >= sizeof(uint32_t)) {
+        uint32_t timestamp = *(const uint32_t *)in_data;
+        sync_clock(timestamp);
+    }
+}
+#endif
+
+void keyboard_post_init_user(void) {
+    oled_clear();
+
+    if (is_keyboard_master()) {
+        init_widgets();
+    }
+
+#ifdef SPLIT_KEYBOARD
+    transaction_register_rpc(CLOCK_SYNC, clock_sync_slave_handler);
+#endif
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    if (is_keyboard_master()) {
+        tick_widgets();
+    }
+#ifdef TRI_LAYER_ENABLE
+    return update_tri_layer_state(state, _NUM, _NAV, _FUNC);
+#endif
+    return state;
+}
+
+void matrix_scan_user(void) {
+    // if (task_layer_active && timer_elapsed32(task_layer_timer) > TASK_LAYER_TIMEOUT) {
+    //     tap_code(KC_ESC);
+    //     layer_off(_TASK);
+    //     task_layer_active = false;
+    // }
+
+    if (slug_lock_active && timer_elapsed32(slug_lock_timer) > SLUG_LOCK_TIMEOUT) {
+        slug_lock_active = false;
+    }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed) {
+        // if (task_layer_active) {
+        //     task_layer_timer = timer_read32();
+        // }
+
+        if (slug_lock_active) {
+            slug_lock_timer = timer_read32();
+        }
+    }
+
+    switch (keycode) {
+        case OS_LSFT:
+            if (record->event.pressed && oneshot_shift_active) {
+                clear_oneshot_mods();
+                return false;
+            }
+            break;
+        // case CUS_TSK:
+        //     if (record->event.pressed) {
+        //         tap_code16(G(KC_TAB));
+        //         layer_on(_TASK);
+        //         task_layer_active = true;
+        //         task_layer_timer = timer_read32();
+        //     }
+        //     return false;
+        case CUS_SLK:
+            if (record->event.pressed) {
+                if (slug_lock_active) {
+                    slug_lock_active = false;
+                } else {
+                    slug_lock_active = true;
+                    slug_lock_timer = timer_read32();
+                }
+            }
+            return false;
+        case CUS_SNT:
+            if (record->event.pressed) {
+                tap_code16(C(KC_C));
+                wait_ms(100);
+                tap_code16(C(KC_T));
+                wait_ms(100);
+                tap_code16(C(KC_V));
+                wait_ms(100);
+                tap_code(KC_ENT);
+            }
+            return false;
+        case CUS_CODE:
+            if (record->event.pressed) {
+                SEND_STRING("```");
+                tap_code16(C(KC_J));
+                wait_ms(50);
+                tap_code16(C(KC_V));
+                tap_code16(C(KC_J));
+                wait_ms(50);
+                SEND_STRING("```");
+                tap_code16(C(KC_J));
+            }
+            return false;
+
+        // case KC_ESC:
+        // case KC_ENT:
+        //     if (record->event.pressed && task_layer_active) {
+        //         layer_off(_TASK);
+        //         task_layer_active = false;
+        //     }
+        //     break;
+        case KC_MINS:
+            if (record->event.pressed && slug_lock_active) {
+                if (is_caps_word_on()) {
+                    tap_code(KC_MINS);
+                } else {
+                    tap_code16(S(KC_MINS));
+                }
+                return false;
+            }
+            break;
+        case KC_SPC:
+            if (record->event.pressed && slug_lock_active) {
+                slug_lock_active = false;
+            }
+            break;
+    }
+
+    return true;
+}
+
+void oneshot_mods_changed_user(uint8_t mods) {
+    oneshot_shift_active = mods & MOD_MASK_SHIFT;
+}
+
+void td_bluetooth_mute_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        // single tap
+        tap_code(KC_MUTE);
+    } else if (state->count == 2) {
+        tap_code16(G(KC_A));
+        wait_ms(500);
+        tap_code(KC_RIGHT);
+        wait_ms(500);
+        tap_code(KC_SPC);
+        wait_ms(500);
+        tap_code(KC_ESC);
+    }
+}
+
+void td_super_paren_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        // single tap
+        tap_code16(S(KC_9));
+    } else if (state->count == 2) {
+        // double tap
+        tap_code16(S(KC_0));
+    }
+}
+
+bool rgb_matrix_indicators_user(void) {
+#ifdef CAPS_WORD_ENABLE
+    if (is_caps_word_on()) {
+        color_t orange = HUE(HUE_ORANGE);
+        rgb_t caps_word_rgb;
+        get_rgb(orange, &caps_word_rgb);
+        rgb_matrix_set_color(CAPS_WORD_LED_INDEX, caps_word_rgb.r, caps_word_rgb.g, caps_word_rgb.b);
+    }
+#endif
+
+    if (oneshot_shift_active) {
+        color_t orange = HUE(HUE_ORANGE);
+        rgb_t oneshot_shift_rgb;
+        get_rgb(orange, &oneshot_shift_rgb);
+        rgb_matrix_set_color(ONESHOT_SHIFT_LED_INDEX, oneshot_shift_rgb.r, oneshot_shift_rgb.g, oneshot_shift_rgb.b);
+    }
+
+    if (slug_lock_active) {
+        color_t orange = HUE(HUE_ORANGE);
+        rgb_t slug_lock_rgb;
+        get_rgb(orange, &slug_lock_rgb);
+        rgb_matrix_set_color(SLUG_LOCK_LED_INDEX, slug_lock_rgb.r, slug_lock_rgb.g, slug_lock_rgb.b);
+    }
+
+    return true;
+}
+
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_CMD] = ACTION_TAP_DANCE_DOUBLE(C(KC_A), KC_COLN),
+    [TD_BLUETOOTH_MUTE] = ACTION_TAP_DANCE_FN(td_bluetooth_mute_finished),
+};

@@ -1,0 +1,10 @@
+{
+    "modules": [
+        "dmyoung9/oled_utils",
+        "dmyoung9/wpm_stats",
+        "elpekenin/colors",
+        "elpekenin/indicators",
+        "dmyoung9/encoder_ledmap",
+        "getreuer/lumino"
+    ]
+}
