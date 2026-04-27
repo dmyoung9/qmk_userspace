@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include QMK_KEYBOARD_H
 #include "progmem_anim.h"
 #include "oled_utils.h"
@@ -11,6 +12,8 @@ void init_widgets(void);
 void draw_horizon(void);
 void draw_wpm_frame(void);
 void tick_widgets(void);
+void sync_clock(uint32_t timestamp);
+void draw_clock(void);
 
 // Enhanced features
 bool is_boot_animation_complete(void);

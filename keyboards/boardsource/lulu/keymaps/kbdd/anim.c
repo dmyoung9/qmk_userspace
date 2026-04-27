@@ -172,6 +172,49 @@ static const slice_t *const WPM_DIGIT_SLICES[] = {
     &SLICE_digit_0, &SLICE_digit_1, &SLICE_digit_2, &SLICE_digit_3, &SLICE_digit_4, &SLICE_digit_5, &SLICE_digit_6, &SLICE_digit_7, &SLICE_digit_8, &SLICE_digit_9,
 };
 
+static uint32_t base_timestamp = 0;
+static uint32_t base_timer     = 0;
+
+void sync_clock(uint32_t timestamp) {
+    base_timestamp = timestamp;
+    base_timer     = timer_read32();
+}
+
+void draw_clock(void) {
+    if (base_timestamp == 0) return;
+
+    uint32_t elapsed_ms        = timer_elapsed32(base_timer);
+    uint32_t current_timestamp = base_timestamp + (elapsed_ms / 1000);
+
+    // Convert to HH:MM:SS
+    uint32_t seconds = current_timestamp % 60;
+    uint32_t minutes = (current_timestamp / 60) % 60;
+    uint32_t hours   = (current_timestamp / 3600) % 24;
+
+    bool is_pm = hours >= 12;
+    hours      = hours % 12;
+    if (hours == 0) hours = 12;
+
+    // Hours
+    draw_slice_px_or(WPM_DIGIT_SLICES[hours / 10], 80, 5);
+    draw_slice_px_or(WPM_DIGIT_SLICES[hours % 10], 86, 5);
+
+    // Colons
+    draw_slice_px_or(&SLICE_colon, 92, 5);
+    draw_slice_px_or(&SLICE_colon, 106, 5);
+
+    // Minutes
+    draw_slice_px_or(WPM_DIGIT_SLICES[minutes / 10], 94, 5);
+    draw_slice_px_or(WPM_DIGIT_SLICES[minutes % 10], 100, 5);
+
+    // Seconds
+    draw_slice_px_or(WPM_DIGIT_SLICES[seconds / 10], 108, 5);
+    draw_slice_px_or(WPM_DIGIT_SLICES[seconds % 10], 114, 5);
+
+    // AM/PM
+    draw_slice_px_or(is_pm ? &SLICE_pm : &SLICE_am, 120, 5);
+}
+
 #define WPM_DIGIT_WIDTH 5
 #define WPM_DIGIT_HEIGHT 8
 #define WPM_DIGIT_SPACING 1
@@ -308,6 +351,8 @@ void draw_horizon(void) {
         horizon_initialized = true;
     }
 
+    oled_clear();
+
     // Render Horizon animations
     unified_anim_render(&horizon_anim, now);
 }
@@ -318,6 +363,8 @@ void draw_wpm_frame(void) {
     if (!wpm_initialized) {
         wpm_initialized = true;
     }
+
+    //clear_rect(WPM_AREA_X, WPM_AREA_Y, WPM_AREA_WIDTH, WPM_DIGIT_HEIGHT);
 
     // Draw numeric WPM (right-aligned, no leading zeros)
     draw_wpm_digits(wpm_stats_get_current());

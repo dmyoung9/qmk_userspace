@@ -1,7 +1,7 @@
 SRC += anim.c progmem_anim.c progmem_horizon.c
 
 CONVERT_TO=blok
-VIA_ENABLE = yes
+RAW_ENABLE = yes
 ENCODER_ENABLE = yes
 ENCODER_MAP_ENABLE = yes
 SPLIT_KEYBOARD = yes

@@ -12,6 +12,13 @@
 #include "elpekenin/indicators.h"
 #include "elpekenin/colors.h"
 
+#ifdef SPLIT_KEYBOARD
+    #include "transactions.h"
+#endif
+#ifdef RAW_ENABLE
+    #include "raw_hid.h"
+#endif
+
 #define CAPS_WORD_LED_INDEX 24
 #define SLUG_LOCK_LED_INDEX 34
 #define ONESHOT_SHIFT_LED_INDEX 47
@@ -28,6 +35,10 @@ static bool slug_lock_active = false;
 static uint32_t slug_lock_timer = 0;
 #define SLUG_LOCK_TIMEOUT 3000  // 3000ms timeout
 
+#ifdef SPLIT_KEYBOARD
+static uint32_t last_sync_timestamp = 0;
+static bool     sync_pending        = false;
+#endif
 
 const indicator_t PROGMEM indicators[] = {
     // Initialize indicators
@@ -247,6 +258,7 @@ bool oled_task_user(void) {
 
     if (!is_keyboard_master()) {
         draw_horizon();
+        draw_clock();
     } else {
         tick_widgets();
         draw_wpm_frame();
@@ -260,14 +272,57 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 }
 #endif
 
+#ifdef RAW_ENABLE
+void raw_hid_receive(uint8_t *data, uint8_t length) {
+    if (is_keyboard_master()) {
+        // Data format: [0] = 'T', [1..4] = uint32_t timestamp
+        if (data[0] == 'T') {
+            uint32_t timestamp = ((uint32_t)data[1] << 24) | ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 8) | ((uint32_t)data[4]);
+
+#ifdef SPLIT_KEYBOARD
+            last_sync_timestamp = timestamp;
+            sync_pending        = true;
+#endif
+        }
+    }
+}
+#endif
+
+#ifdef SPLIT_KEYBOARD
+void housekeeping_task_user(void) {
+    if (is_keyboard_master() && sync_pending) {
+        if (transaction_rpc_send(CLOCK_SYNC, sizeof(last_sync_timestamp), &last_sync_timestamp)) {
+            sync_pending = false;
+        }
+    }
+}
+#endif
+
+#ifdef SPLIT_KEYBOARD
+void clock_sync_slave_handler(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data) {
+    if (in_buflen >= sizeof(uint32_t)) {
+        uint32_t timestamp = *(const uint32_t *)in_data;
+        sync_clock(timestamp);
+    }
+}
+#endif
+
 void keyboard_post_init_user(void) {
     oled_clear();
 
-    init_widgets();
+    if (is_keyboard_master()) {
+        init_widgets();
+    }
+
+#ifdef SPLIT_KEYBOARD
+    transaction_register_rpc(CLOCK_SYNC, clock_sync_slave_handler);
+#endif
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    tick_widgets();
+    if (is_keyboard_master()) {
+        tick_widgets();
+    }
 #ifdef TRI_LAYER_ENABLE
     return update_tri_layer_state(state, _NUM, _NAV, _FUNC);
 #endif
