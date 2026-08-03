@@ -42,7 +42,7 @@
 #    define ENCODER_B_PINS_RIGHT \
         { F4 }
 #    define ENCODER_RESOLUTIONS_RIGHT \
-        { 4 }
+        { 2 }
 #endif
 //
 
