@@ -19,6 +19,14 @@
     #include "raw_hid.h"
 #endif
 
+#ifdef CONSOLE_ENABLE
+static void log_keyevent(uint16_t keycode, keyrecord_t *record) {
+    uprintf("%s kc=%s\n",
+            record->event.pressed ? "down" : "up",
+            get_keycode_string(keycode));
+}
+#endif
+
 #define CAPS_WORD_LED_INDEX 24
 #define SLUG_LOCK_LED_INDEX 34
 #define ONESHOT_SHIFT_LED_INDEX 47
@@ -338,6 +346,10 @@ void matrix_scan_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+#ifdef CONSOLE_ENABLE
+    log_keyevent(keycode, record);
+#endif
+
     if (record->event.pressed) {
         // if (task_layer_active) {
         //     task_layer_timer = timer_read32();
